@@ -13,7 +13,7 @@
 :root{
   --bg:#F2F6F5;--surface:#fff;--ink:#10272D;--muted:#54696F;--line:#DCE6E5;--line2:#C5D4D3;
   --primary:#0A6A72;--primary-ink:#fff;--deep:#063F46;--sun:#F4A51C;--sun-ink:#10272D;--sun-soft:#FDF0D5;--sun-ink2:#4A3300;
-  --teal-soft:#E1F0EF;--danger:#C2412D;--danger-soft:#FBE9E6;--ok:#1E8E5A;--ok-soft:#E3F4EB;
+  --teal-soft:#E1F0EF;--danger:#C2412D;--danger-ink:#A3341F;--ok-ink:#166B45;--brand-grad:linear-gradient(135deg,#063F46,#0A6A72);--danger-soft:#FBE9E6;--ok:#1E8E5A;--ok-soft:#E3F4EB;
   --shadow:0 1px 2px rgba(16,39,45,.06),0 6px 18px rgba(16,39,45,.06);
   --r:18px;--nav:68px;
   --f-body:'IBM Plex Sans Arabic','Noto Sans Arabic',Tahoma,system-ui,sans-serif;
@@ -23,12 +23,12 @@
 html.dark{
   --bg:#0A1214;--surface:#121D20;--ink:#E7F0EF;--muted:#9AB0B3;--line:#223437;--line2:#2E4548;
   --primary:#2FB0B9;--primary-ink:#04282B;--deep:#0D2B2F;--sun:#F4A51C;--sun-soft:#34280F;--sun-ink2:#F6D79B;
-  --teal-soft:#14302F;--danger:#F0705C;--danger-soft:#3A1D18;--ok:#4CC58A;--ok-soft:#14301F;
+  --teal-soft:#14302F;--danger:#F0705C;--danger-ink:#F0705C;--ok-ink:#4CC58A;--brand-grad:linear-gradient(135deg,#0A3135,#0E5A61);--danger-soft:#3A1D18;--ok:#4CC58A;--ok-soft:#14301F;
   --shadow:0 1px 0 rgba(255,255,255,.03);color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none !important}
-html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+html,body{margin:0;height:100%;overflow-wrap:anywhere;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
 body{overscroll-behavior-y:contain}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none;padding:0}
@@ -60,7 +60,7 @@ h1,h2,h3,p{margin:0}
 .logo i{width:30px;height:30px;border-radius:10px;background:var(--primary);color:var(--primary-ink);display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:20px;transform:rotate(-6deg)}
 .ibtn{width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;position:relative;color:var(--ink);transition:transform .12s}
 .ibtn:active{transform:scale(.92)}
-.ibtn .dot{position:absolute;top:6px;inset-inline-end:6px;min-width:18px;height:18px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--bg)}
+.ibtn .dot{position:absolute;top:6px;inset-inline-end:6px;min-width:18px;height:18px;border-radius:9px;background:#C2412D;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--bg)}
 
 .wrap{padding:0 16px}
 .gap{display:flex;flex-direction:column;gap:12px}
@@ -73,7 +73,7 @@ h1,h2,h3,p{margin:0}
 .sec b{font-size:15px}.sec a,.sec button{font-size:13px;font-weight:700;color:var(--primary)}
 
 /* hero */
-.hero{margin:4px 16px 0;padding:18px 16px 16px;border-radius:26px;background:linear-gradient(135deg,var(--deep),var(--primary));color:#fff;position:relative;overflow:hidden}
+.hero{margin:4px 16px 0;padding:18px 16px 16px;border-radius:26px;background:var(--brand-grad);color:#fff;position:relative;overflow:hidden}
 .hero::after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;background:rgba(244,165,28,.18);inset-inline-start:-50px;top:-60px}
 .hero h2{font-family:var(--f-head);font-weight:400;font-size:25px;line-height:1.35;position:relative}
 .hero p{opacity:.85;font-size:13.5px;position:relative;margin-top:2px}
@@ -87,7 +87,7 @@ h1,h2,h3,p{margin:0}
 /* segmented + chips */
 .seg{display:flex;background:var(--teal-soft);border-radius:16px;padding:4px;margin:14px 16px 0;gap:4px}
 .seg button{flex:1;height:40px;border-radius:12px;font-weight:700;font-size:14px;color:var(--muted);transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px}
-.seg button.on{background:var(--surface);color:var(--primary);box-shadow:var(--shadow)}
+.seg button.on{background:var(--primary);color:var(--primary-ink);box-shadow:0 2px 8px rgba(10,106,114,.25)}
 .chips{display:flex;gap:8px;overflow-x:auto;padding:12px 16px 4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;height:38px;padding:0 14px;border-radius:19px;background:var(--surface);border:1px solid var(--line);font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s;color:var(--ink)}
@@ -116,8 +116,8 @@ html.dark .g-health{--c:#F0705C}html.dark .g-tech{--c:#8A98F0}html.dark .g-learn
 .badge{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 9px;border-radius:12px;font-size:12px;font-weight:700;background:var(--teal-soft);color:var(--primary);white-space:nowrap}
 .badge.sun{background:var(--sun-soft);color:var(--sun-ink2)}
 .badge.gray{background:var(--line);color:var(--muted)}
-.badge.ok{background:var(--ok-soft);color:var(--ok)}
-.badge.bad{background:var(--danger-soft);color:var(--danger)}
+.badge.ok{background:var(--ok-soft);color:var(--ok-ink)}
+.badge.bad{background:var(--danger-soft);color:var(--danger-ink)}
 .badge.solid{background:var(--primary);color:var(--primary-ink)}
 
 .wcard{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;box-shadow:var(--shadow)}
@@ -164,7 +164,7 @@ textarea.inp{height:auto;min-height:96px;padding:10px 14px;resize:none;line-heig
 .toggle .sw::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .toggle.on .sw{background:var(--primary)}
 .toggle.on .sw::after{transform:translateX(-18px)}
-.opt{display:flex;align-items:center;gap:10px;padding:12px;border-radius:16px;border:2px solid var(--line);background:var(--surface);flex:1;font-weight:600;font-size:14px;justify-content:center;transition:all .15s;min-height:58px}
+.opt{display:flex;align-items:center;gap:6px;padding:10px 8px;white-space:nowrap;min-width:0;border-radius:16px;border:2px solid var(--line);background:var(--surface);flex:1;font-weight:600;font-size:14px;justify-content:center;transition:all .15s;min-height:58px}
 .opt.on{border-color:var(--primary);background:var(--teal-soft)}
 .opt .ic{color:var(--primary)}
 
@@ -173,7 +173,7 @@ textarea.inp{height:auto;min-height:96px;padding:10px 14px;resize:none;line-heig
 .nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;font-weight:600;color:var(--muted);position:relative;transition:color .15s}
 .nav a.on{color:var(--primary)}
 .nav a.on::before{content:"";position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--primary)}
-.nav a .bd{position:absolute;top:8px;inset-inline-start:calc(50% + 6px);min-width:16px;height:16px;border-radius:8px;background:var(--danger);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.nav a .bd{position:absolute;top:8px;inset-inline-start:calc(50% + 6px);min-width:16px;height:16px;border-radius:8px;background:#C2412D;color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px}
 .nav .plus{transform:translateY(-14px)}
 .nav .plus span{width:54px;height:54px;border-radius:50%;background:var(--sun);color:var(--sun-ink);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(244,165,28,.45);transition:transform .15s}
 .nav .plus:active span{transform:scale(.9)}
@@ -192,7 +192,7 @@ textarea.inp{height:auto;min-height:96px;padding:10px 14px;resize:none;line-heig
 .banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:var(--sun-soft);color:var(--sun-ink2);font-size:13.5px;line-height:1.55}
 .banner.teal{background:var(--teal-soft);color:var(--primary)}
 .banner.bad{background:var(--danger-soft);color:var(--danger)}
-.banner.ok{background:var(--ok-soft);color:var(--ok)}
+.banner.ok{background:var(--ok-soft);color:var(--ok-ink)}
 .banner .ic{margin-top:2px}
 .offline{background:var(--ink);color:var(--bg);font-size:12.5px;text-align:center;padding:4px;font-weight:600}
 
@@ -252,7 +252,7 @@ textarea.inp{height:auto;min-height:96px;padding:10px 14px;resize:none;line-heig
 .check input{width:22px;height:22px;accent-color:var(--primary);flex:none;margin-top:2px}
 
 /* misc */
-.splash{position:fixed;inset:0;z-index:100;background:linear-gradient(160deg,var(--deep),var(--primary));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;transition:opacity .35s}
+.splash{position:fixed;inset:0;z-index:100;background:var(--brand-grad);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;transition:opacity .35s}
 .splash b{font-family:var(--f-head);font-weight:400;font-size:56px;line-height:1;animation:pop .6s both}
 .splash small{opacity:.85}
 .splash.hide{opacity:0;pointer-events:none}
@@ -302,7 +302,7 @@ html.dark .g-build{--c:#D9A06A}html.dark .g-craft{--c:#F08AC8}html.dark .g-agri{
 
 .socs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .soc{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:14px;font-weight:700;font-size:13px;background:var(--teal-soft);color:var(--primary)}
-.soc.ig{background:#FCE7F1;color:#B0306A}.soc.fb{background:#E6EEFB;color:#1D5BC2}.soc.wa{background:#E3F6EA;color:#14833F}
+.soc.ig{background:#FCE7F1;color:#B0306A}.soc.fb{background:#E6EEFB;color:#1D5BC2}.soc.wa{background:#E3F6EA;color:#0F6B32}
 html.dark .soc.ig{background:#3A1F2C;color:#F59AC4}html.dark .soc.fb{background:#1C2840;color:#8AB1F2}html.dark .soc.wa{background:#163222;color:#6FD99A}
 
 </style>
@@ -356,6 +356,14 @@ const EXAMPLES = {
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* Arabic-Indic / Persian digits → Latin (phones in Gaza often type ٠٥٩٩…) */
+const enDigits = s => String(s == null ? '' : s).replace(/[\u0660-\u0669]/g, d => d.charCodeAt(0) - 0x660).replace(/[\u06F0-\u06F9]/g, d => d.charCodeAt(0) - 0x6F0);
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t && t.tagName === 'INPUT' && (/^(tel|number)$/.test(t.type) || /^(numeric|tel|decimal)$/.test(t.inputMode || ''))) {
+    const v = enDigits(t.value); if (v !== t.value) t.value = v;
+  }
+}, true);
 const LS = {
   get(k, d) { try { const v = localStorage.getItem('sh_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem('sh_' + k, JSON.stringify(v)); } catch (e) {} },
@@ -939,7 +947,7 @@ ACT.fareaset = t => { if (!FEED) return; FEED.st.area = t.dataset.v || null; clo
 function howHtml() {
   if (LS.get('hidehow', false)) return '';
   const step = (n, tx) => `<div class="card" style="flex:none;width:150px;padding:10px 12px"><span class="badge solid">${n}</span><div class="sm b" style="margin-top:6px;line-height:1.5">${tx}</div></div>`;
-  return `<div class="sec"><b>كيف تعمل شغلة؟</b><button data-a="hidehow">إخفاء</button></div>
+  return `<div class="sec"><b>كيف تعمل شغلة؟</b><button data-a="hidehow" style="padding:8px 10px;margin:-8px -10px">إخفاء</button></div>
     <div class="chips" style="padding-top:0">${step(1, 'انشر طلبك وحدّد ميزانيتك')}${step(2, 'يصلك عدة عروض من عمّال موثّقين')}${step(3, 'اختر الأنسب وتواصل معه مباشرة')}${step(4, 'أعطِه رمز الإنجاز عندما ترضى عن الشغل')}</div>`;
 }
 ACT.hidehow = () => { LS.set('hidehow', true); render(); };
@@ -1007,11 +1015,11 @@ route(/^\/login$/, async ctx => {
   if (S.token && S.me) { replace(ctx.q.next || '/'); return null; }
   const tab = ctx.q.tab || AUTH_TAB, su = tab === 'signup';
   const html = `
-    <div style="background:linear-gradient(160deg,var(--deep),var(--primary));color:#fff;padding:calc(34px + env(safe-area-inset-top)) 20px 56px;border-radius:0 0 34px 34px;text-align:center;position:relative">
+    <div style="background:var(--brand-grad);color:#fff;padding:calc(34px + env(safe-area-inset-top)) 20px 56px;border-radius:0 0 34px 34px;text-align:center;position:relative">
       <button class="ibtn" data-a="back" aria-label="رجوع" style="position:absolute;top:calc(12px + env(safe-area-inset-top));inset-inline-start:16px;background:rgba(255,255,255,.14);border:0;color:#fff">${ic('back')}</button>
       <div class="logo" style="justify-content:center;color:#fff;font-size:44px"><i style="background:var(--sun);color:#10272D;width:44px;height:44px;font-size:28px;border-radius:14px">ش</i>شغلة</div>
       <p style="opacity:.88;margin-top:6px">${su ? 'أنشئ حسابك في دقيقة — بدون رسائل أو رموز' : 'أهلا بعودتك'}</p></div>
-    <div class="wrap" style="margin-top:-34px"><form class="card gap" id="af" autocomplete="on" novalidate>
+    <div class="wrap" style="margin-top:-34px;position:relative;z-index:2"><form class="card gap" id="af" autocomplete="on" novalidate>
       <div class="seg" style="margin:0"><button type="button" class="${su ? '' : 'on'}" data-a="authtab" data-v="login">دخول</button><button type="button" class="${su ? 'on' : ''}" data-a="authtab" data-v="signup">حساب جديد</button></div>
       ${su ? `<div class="field"><label for="a-name">الاسم</label><input class="inp" id="a-name" name="name" autocomplete="name" maxlength="40" placeholder="مثال: محمد أحمد"></div>` : ''}
       <div class="field"><label for="a-phone">رقم الجوال</label><input class="inp" id="a-phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" style="text-align:right" placeholder="059 123 4567"></div>
@@ -1024,7 +1032,7 @@ route(/^\/login$/, async ctx => {
     html, nonav: true, mount: v => {
       $('#af', v).addEventListener('submit', async e => {
         e.preventDefault();
-        const phone = $('#a-phone', v).value.trim(), pass = $('#a-pass', v).value;
+        const phone = enDigits($('#a-phone', v).value.trim()), pass = $('#a-pass', v).value;
         const btn = $('#a-go', v);
         await busy(btn, async () => {
           try {
@@ -1194,7 +1202,7 @@ function bindOtp(root) {
     });
     el.addEventListener('keydown', e => { if (e.key === 'Backspace' && !el.value && ins[i - 1]) ins[i - 1].focus(); });
     el.addEventListener('paste', e => {
-      const d = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 4);
+      const d = enDigits(e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 4);
       if (d.length > 1) { e.preventDefault(); ins.forEach((x, k) => x.value = d[k] || ''); ins[Math.min(d.length, 3)].focus(); }
     });
   });
@@ -1558,7 +1566,7 @@ function joinPaint() {
       : `<div class="empty" style="padding-top:40px"><span class="tile lg">⏳</span><h3>طلبك قيد المراجعة</h3><p class="muted">نراجع ملفك الآن. إن أردت تعديل شيء قبل القرار يمكنك ذلك.</p><button class="btn soft sm" data-a="joinedit">تعديل الطلب</button></div>`;
   } else if (J.step === 0) {
     body = `<div class="wrap gap" style="margin-top:8px">
-      <div class="card gap" style="background:linear-gradient(135deg,var(--deep),var(--primary));color:#fff;border:0"><h2 class="h2">اكسب من مهارتك 💪</h2><p style="opacity:.9">استقبل طلبات حقيقية قريبة منك، وقدّم عروضك، وابنِ سمعتك بتقييمات الزبائن.</p></div>
+      <div class="card gap" style="background:var(--brand-grad);color:#fff;border:0"><h2 class="h2">اكسب من مهارتك 💪</h2><p style="opacity:.9">استقبل طلبات حقيقية قريبة منك، وقدّم عروضك، وابنِ سمعتك بتقييمات الزبائن.</p></div>
       <div class="card gap"><b>ما الذي نحتاجه منك؟</b><ul class="req" style="margin:0;padding-inline-start:20px">
         <li>صورة شخصية واضحة لوجهك</li><li>الخدمات التي تتقنها (حتى 5) — وإن لم تجد مهنتك اكتبها بنفسك</li><li>نبذة عن خبرتك وسنوات العمل</li><li>أوقات عملك ومنطقتك</li><li>مؤهل أو شهادة للخدمات الصحية (علاج طبيعي، تمريض، حجامة…)</li><li>صور من أعمالك السابقة (اختياري لكنها ترفع فرصك)</li></ul></div>
       <div class="banner teal">${ic('shield')}<span>نراجع كل طلب يدويا قبل التفعيل حفاظا على ثقة الناس، وعادة يكون القرار خلال 24 ساعة.</span></div>
@@ -1663,7 +1671,7 @@ let AD = { tab: 'pending', wst: 'approved', cache: {} };
 route(/^\/admin$/, async ctx => {
   if (!S.me || !S.me.admin) { await refreshMe(); if (!S.me || !S.me.admin) { toast('هذه الصفحة للإدارة فقط', 'bad'); replace('/account'); return null; } }
   const tabs = [['pending', 'الطلبات'], ['reports', 'البلاغات'], ['workers', 'العمّال'], ['services', 'الخدمات'], ['overview', 'نظرة عامة']];
-  const bar = `<div class="chips" style="padding-top:4px">${tabs.map(t => `<button class="chip ${AD.tab === t[0] ? 'on' : ''}" data-a="adtab" data-v="${t[0]}">${t[1]}${t[0] === 'pending' && AD.cache.pending ? ` <span class="badge solid">${AD.cache.pending}</span>` : ''}</button>`).join('')}</div>`;
+  const bar = `<div class="chips" style="padding-top:4px;flex-wrap:wrap;overflow:visible">${tabs.map(t => `<button class="chip ${AD.tab === t[0] ? 'on' : ''}" data-a="adtab" data-v="${t[0]}">${t[1]}${t[0] === 'pending' && AD.cache.pending ? ` <span class="badge solid">${AD.cache.pending}</span>` : ''}</button>`).join('')}</div>`;
   ctx.paint({ html: topbar('لوحة الإدارة') + bar + skeletons(3, 'w'), nav: 'account' });
   let body = '';
   if (AD.tab === 'overview') body = await adOverview();
@@ -1671,7 +1679,7 @@ route(/^\/admin$/, async ctx => {
   else if (AD.tab === 'reports') body = await adReports();
   else if (AD.tab === 'services') body = await adServices();
   else body = await adWorkers();
-  const bar2 = `<div class="chips" style="padding-top:4px">${tabs.map(t => `<button class="chip ${AD.tab === t[0] ? 'on' : ''}" data-a="adtab" data-v="${t[0]}">${t[1]}${t[0] === 'pending' && AD.cache.pending ? ` <span class="badge solid">${AD.cache.pending}</span>` : ''}</button>`).join('')}</div>`;
+  const bar2 = `<div class="chips" style="padding-top:4px;flex-wrap:wrap;overflow:visible">${tabs.map(t => `<button class="chip ${AD.tab === t[0] ? 'on' : ''}" data-a="adtab" data-v="${t[0]}">${t[1]}${t[0] === 'pending' && AD.cache.pending ? ` <span class="badge solid">${AD.cache.pending}</span>` : ''}</button>`).join('')}</div>`;
   return { html: topbar('لوحة الإدارة') + bar2 + body, nav: 'account' };
 }, { auth: true });
 ACT.adtab = t => { AD.tab = t.dataset.v; render(); };
@@ -1680,7 +1688,7 @@ async function adOverview() {
   const o = await rpc('admin_overview'); AD.cache.pending = o.pending;
   const st = (v, l, c) => `<div class="card" style="text-align:center;padding:12px 6px"><div class="h2" style="color:${c || 'var(--primary)'}">${v}</div><div class="xs muted">${l}</div></div>`;
   return `<div class="wrap gap" style="margin-top:8px"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-      ${st(o.pending, 'طلبات انضمام', o.pending ? 'var(--sun)' : '')}${st(o.approved, 'عمال معتمدون')}${st(o.users, 'مستخدمون')}${st(o.open_jobs, 'طلبات مفتوحة')}${st(o.done_jobs, 'طلبات منجزة')}${st(o.reports, 'بلاغات', o.reports ? 'var(--danger)' : '')}</div>
+      ${st(o.pending, 'طلبات انضمام', o.pending ? 'var(--sun-ink2)' : '')}${st(o.approved, 'عمال معتمدون')}${st(o.users, 'مستخدمون')}${st(o.open_jobs, 'طلبات مفتوحة')}${st(o.done_jobs, 'طلبات منجزة')}${st(o.reports, 'بلاغات', o.reports ? 'var(--danger)' : '')}</div>
     <button class="toggle ${o.demo ? 'on' : ''}" data-a="demotoggle" role="switch" aria-checked="${o.demo}"><span class="sp"><b>عرض البيانات التجريبية</b><div class="hint">طلبات وعمّال «نموذج» تملأ التطبيق في البداية. أوقفها عندما تأتي بيانات حقيقية.</div></span><span class="sw"></span></button>
     <div class="card gap"><b>إضافة مشرف</b><p class="hint">أدخل رقم جوال مستخدم مسجّل ليصبح مشرفا.</p><input class="inp" id="ad-ph" type="tel" dir="ltr" style="text-align:right" placeholder="059xxxxxxx"><button class="btn soft sm" data-a="addadmin">إضافة</button></div></div>`;
 }
