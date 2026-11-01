@@ -119,6 +119,11 @@ html.dark .g-health{--c:#F0705C}html.dark .g-tech{--c:#8A98F0}html.dark .g-learn
 .badge.ok{background:var(--ok-soft);color:var(--ok-ink)}
 .badge.bad{background:var(--danger-soft);color:var(--danger-ink)}
 .badge.solid{background:var(--primary);color:var(--primary-ink)}
+/* badge/chip carrying text the user typed («خدمة أخرى», up to 80 chars): wrap inside its box instead of running off-screen */
+.badge.ut,.chip.ut{white-space:normal;height:auto;max-width:100%;line-height:1.45}
+.badge.ut{min-height:24px;padding:3px 9px}
+.chip.ut{min-height:38px;padding:7px 14px;flex:0 1 auto}
+.wcard .badge.ut{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 
 .wcard{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;box-shadow:var(--shadow)}
 .wcard:active{transform:scale(.985)}
@@ -137,7 +142,7 @@ html.dark .g-health{--c:#F0705C}html.dark .g-tech{--c:#8A98F0}html.dark .g-learn
 .btn.ghost{background:var(--surface);color:var(--primary);border:1.5px solid var(--line2)}
 .btn.soft{background:var(--teal-soft);color:var(--primary)}
 .btn.danger{background:var(--danger-soft);color:var(--danger)}
-.btn.wa{background:#1FA855;color:#fff}
+.btn.wa{background:#16833F;color:#fff} /* WhatsApp green dark enough for white text (4.8:1; #1FA855 was 3.1) */
 .btn.sm{height:42px;font-size:14px;border-radius:13px;padding:0 12px;width:auto;white-space:nowrap}
 .btn[disabled],.btn[aria-busy=true]{opacity:.6;pointer-events:none}
 .btn[aria-busy=true]::after{content:"";width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-top-color:transparent;animation:spin .7s linear infinite}
@@ -186,9 +191,10 @@ textarea.inp{height:auto;min-height:96px;padding:10px 14px;resize:none;line-heig
 .sheet.show{transform:none}
 .sheet .grab{width:44px;height:5px;border-radius:3px;background:var(--line2);margin:0 auto 12px}
 .sheet h3{font-family:var(--f-head);font-weight:400;font-size:22px;margin-bottom:6px}
-.toast{position:fixed;bottom:calc(var(--nav) + 18px + env(safe-area-inset-bottom));inset-inline:16px;max-width:488px;margin:0 auto;background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:14px;z-index:80;font-weight:600;font-size:14px;display:flex;gap:10px;align-items:center;animation:rise .2s both;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast{position:fixed;bottom:calc(var(--nav) + 18px + env(safe-area-inset-bottom));inset-inline:16px;max-width:488px;margin:0 auto;background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:14px;z-index:80;font-weight:600;font-size:14px;display:flex;gap:10px;align-items:center;animation:rise .2s both;box-shadow:0 8px 24px rgba(0,0,0,.25);pointer-events:none}
 .toast.bad{background:var(--danger);color:#fff}
-.toast.ok{background:var(--ok);color:#fff}
+.toast.ok{background:var(--ok-ink);color:#fff}
+html.dark .toast.bad,html.dark .toast.ok{color:#10272D}
 .banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:var(--sun-soft);color:var(--sun-ink2);font-size:13.5px;line-height:1.55}
 .banner.teal{background:var(--teal-soft);color:var(--primary)}
 .banner.bad{background:var(--danger-soft);color:var(--danger)}
@@ -486,14 +492,17 @@ const ERR = {
   need_other: 'اكتب اسم مهنتك التي لم تجدها في القائمة',
   exists: 'هذه الخدمة موجودة مسبقا',
   too_many_photos: 'الحد الأقصى 6 صور',
-  bad_image: 'الصورة غير مناسبة، جرّب صورة أخرى',
+  bad_image: 'الصورة غير صالحة أو حجمها كبير، جرّب صورة ثانية',
+  too_fast: 'محاولات كثيرة بوقت قصير — انتظر قليلا ثم حاول',
+  price_changed: 'العامل غيّر سعر عرضه. راجع السعر الجديد قبل القبول',
   suspended: 'حسابك كعامل موقوف حاليا',
   already_reviewed: 'قيّمت هذا الطلب من قبل',
   already_claimed: 'تم تعيين مالك للتطبيق مسبقا',
   bad_secret: 'الرمز غير صحيح',
   need_note: 'اكتب سبب الرفض ليصل للعامل',
   worker_unavailable: 'هذا العامل لم يعد متاحا',
-  code_locked: 'توقفت المحاولات. تواصل مع الزبون لإعادة فتح الطلب',
+  code_locked: 'رموز خاطئة كثيرة — توقفت المحاولات مؤقتا. تأكد من الرمز مع الزبون وحاول بعد قليل',
+  bad_code: 'الرمز غير صحيح',
   bad_text: 'النص طويل أو غير صالح',
   bad_exp: 'سنوات الخبرة غير صحيحة'
 };
@@ -524,7 +533,7 @@ async function rpc(fn, args, opt) {
   }
   if (data && data.error) {
     const e = mkErr(data.error, { left: data.left });
-    if (data.error === 'bad_code') e.msg = 'الرمز غير صحيح — بقي لك ' + data.left + (data.left === 1 ? ' محاولة' : ' محاولات');
+    if (data.error === 'bad_code') e.msg = data.left == null ? 'الرمز غير صحيح' : data.left > 0 ? 'الرمز غير صحيح — بقي لك ' + pluralize(data.left, 'محاولة واحدة', 'محاولتين', 'محاولات', 'محاولة') : 'الرمز غير صحيح. ' + ERR.code_locked;
     throw e;
   }
   return data;
@@ -711,9 +720,11 @@ function jobCard(j) {
       <div class="jfoot"><span class="price">${esc(budget(j))}</span>${j.offers > 0 ? `<span class="badge">${j.offers} ${j.offers === 1 ? 'عرض' : 'عروض'}</span>` : ''}${flags.join('')}</div>
     </div></a>`;
 }
-function workerCard(w) {
-  const names = (w.services || []).slice(0, 2).map(s => `<span class="badge">${emo(s)} ${esc(s === 'other' ? (w.other || 'أخرى') : svc(s).name)}</span>`).join('');
-  return `<a class="wcard" href="#/worker/${esc(w.id)}">${avatar(w.name, w.thumb, '', w.available)}
+/* ctxSvc: the service the list is filtered by — passed to the profile so «ادعُه لطلبك» opens a request for it */
+function workerCard(w, ctxSvc) {
+  const names = (w.services || []).slice(0, 2).map(s => `<span class="badge${s === 'other' ? ' ut' : ''}">${emo(s)} ${esc(s === 'other' ? (w.other || 'أخرى') : svc(s).name)}</span>`).join('');
+  const q = ctxSvc && (w.services || []).includes(ctxSvc) ? '?s=' + encodeURIComponent(ctxSvc) : '';
+  return `<a class="wcard" href="#/worker/${esc(w.id)}${q}">${avatar(w.name, w.thumb, '', w.available)}
     <div class="sp"><div class="row"><b>${esc(w.name)}</b>${w.demo ? '<span class="badge gray">نموذج</span>' : ''}</div>
       <div class="row" style="flex-wrap:wrap;gap:6px;margin:3px 0">${names}</div>
       <div class="row sm muted" style="gap:10px">${starsRow(w.rating, w.count)}<span>${ic('pin', 's')} ${esc(w.area || '')}</span>${w.exp != null ? `<span>${w.exp} سنة خبرة</span>` : ''}</div>
@@ -763,7 +774,7 @@ let renderTok = 0, curHash = '';
 function route(re, fn, opts) { ROUTES.push({ re, fn, opts: opts || {} }); }
 function go(path) { location.hash = '#' + path; }
 function replace(path) { try { location.replace(location.href.split('#')[0] + '#' + path); } catch (e) { location.hash = '#' + path; } }
-function loginTo(next) { replace('/login?next=' + encodeURIComponent(next || (location.hash.slice(1) || '/'))); }
+function loginTo(next, tab) { replace('/login?' + (tab ? 'tab=' + tab + '&' : '') + 'next=' + encodeURIComponent(next || (location.hash.slice(1) || '/'))); }
 
 function paint(res, tok) {
   if (tok !== renderTok) return;
@@ -794,7 +805,7 @@ async function render() {
   for (const r of ROUTES) {
     const m = path.match(r.re);
     if (!m) continue;
-    if (r.opts.auth && !S.token) { loginTo(raw); return; }
+    if (r.opts.auth && !S.token) { loginTo(raw, r.opts.guestTab); return; }
     const ctx = { params: m.slice(1), q, tok, path, raw, paint: res => paint(res, tok) };
     let res;
     try { res = await r.fn(ctx); }
@@ -901,7 +912,7 @@ function feedItemsHtml(st) {
     if (st.tab === 'jobs') return empty(filtered ? 'ما لقينا طلبات مطابقة' : 'لا توجد طلبات الآن', filtered ? 'جرّب تغيّر البحث أو المنطقة' : 'كن أول من ينشر طلبا وسيصل للعمال القريبين', `<a class="btn sun sm" href="#/post${st.svc ? '?svc=' + st.svc : ''}">${ic('plus', 's')} انشر طلبا</a>`);
     return empty(filtered ? 'ما لقينا عمالا مطابقين' : 'لا يوجد عمال بعد', 'هل تملك مهارة؟ انضم كعامل واكسب من شغلك', '<a class="btn sun sm" href="#/join">انضم كعامل</a>');
   }
-  const list = st.tab === 'jobs' ? st.items.map(jobCard).join('') : st.items.map(workerCard).join('');
+  const list = st.tab === 'jobs' ? st.items.map(jobCard).join('') : st.items.map(w => workerCard(w, st.svc)).join('');
   return `<div class="list fade-in">${list}</div>` + (st.tab === 'jobs' && !st.done ? `<div class="wrap" style="margin-top:12px"><button class="btn ghost" data-a="fmore">عرض المزيد</button></div>` : '');
 }
 async function feedLoad(more) {
@@ -1187,13 +1198,14 @@ function contactCard(c, who) {
 }
 function stepper(id, val, o) {
   o = o || {};
-  return `<div class="step"><button type="button" data-a="stp" data-o="${id}" data-d="${-(o.step || 10)}" data-min="${o.min || 0}" aria-label="أنقص">${ic('minus')}</button>
-    <span class="row" style="gap:6px"><input class="stin" id="${id}" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" min="${o.min || 0}" max="100000" value="${val}" aria-label="${esc(o.label || '')}"><b class="muted">₪</b></span>
-    <button type="button" data-a="stp" data-o="${id}" data-d="${o.step || 10}" data-min="${o.min || 0}" aria-label="زِد">${ic('plus')}</button></div>`;
+  const lim = `data-min="${o.min || 0}" data-max="${o.max || 100000}"`;
+  return `<div class="step"><button type="button" data-a="stp" data-o="${id}" data-d="${-(o.step || 10)}" ${lim} aria-label="أنقص">${ic('minus')}</button>
+    <span class="row" style="gap:6px"><input class="stin" id="${id}" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" min="${o.min || 0}" max="${o.max || 100000}" value="${val}" aria-label="${esc(o.label || '')}"><b class="muted">₪</b></span>
+    <button type="button" data-a="stp" data-o="${id}" data-d="${o.step || 10}" ${lim} aria-label="زِد">${ic('plus')}</button></div>`;
 }
 ACT.stp = t => {
-  const i = $('#' + t.dataset.o); const min = +t.dataset.min || 0;
-  i.value = Math.min(100000, Math.max(min, (parseInt(enDigits(i.value), 10) || 0) + (+t.dataset.d))); buzz(6);
+  const i = $('#' + t.dataset.o); const min = +t.dataset.min || 0, max = +t.dataset.max || 100000;
+  i.value = Math.min(max, Math.max(min, (parseInt(enDigits(i.value), 10) || 0) + (+t.dataset.d))); buzz(6);
   i.dispatchEvent(new Event('input', { bubbles: true }));
 };
 function bindOtp(root) {
@@ -1316,7 +1328,9 @@ ACT.withdraw = async () => {
 ACT.accept = async t => {
   const d = t.dataset;
   if (!await confirmSheet({ title: 'قبول عرض ' + d.n + '؟', text: `السعر ${d.p} ₪. بعد القبول يظهر رقم جوالك للعامل ورقمه لك، وتحصل على «رمز الإنجاز».`, ok: 'نعم، اقبل العرض' })) return;
-  try { await rpc('offer_accept', { p_offer: d.id }); buzz(30); confetti(); toast('تم قبول العرض — تواصل مع العامل الآن', 'ok'); render(); } catch (e) { fail(e); }
+  /* p_price = the price the customer saw: the server refuses with price_changed if the worker edited it meanwhile */
+  try { await rpc('offer_accept', { p_offer: d.id, p_price: +d.p }); buzz(30); confetti(); toast('تم قبول العرض — تواصل مع العامل الآن', 'ok'); render(); }
+  catch (e) { fail(e); if (e.code === 'price_changed') render(); }
 };
 ACT.canceljob = async () => {
   if (!await confirmSheet({ title: 'إلغاء الطلب؟', text: 'سيتوقف استقبال العروض، وإذا كان هناك عامل مختار سيتم إخباره.', ok: 'إلغاء الطلب', no: 'تراجع', danger: true })) return;
@@ -1351,7 +1365,13 @@ route(/^\/post$/, async ctx => {
   if (ctx.q.fresh || PD.done) PD = PD0();
   PICKQ = '';
   if (ctx.q.svc && svc(ctx.q.svc).slug === ctx.q.svc && S.services.some(s => s.slug === ctx.q.svc)) { PD.svc = ctx.q.svc; if (PD.step === 1) PD.step = 2; }
-  if (ctx.q.invite) { PD.invite = { id: ctx.q.invite, name: ctx.q.name || 'العامل' }; if (ctx.q.s && !PD.svc) { PD.svc = ctx.q.s; PD.step = 2; } }
+  if (ctx.q.invite) {
+    /* «ادعُه لطلبك»: the invited worker's service wins over an unfinished draft for another service (it used to be ignored) */
+    const s = ctx.q.s && S.services.some(x => x.slug === ctx.q.s) ? ctx.q.s : null;
+    if (s && PD.svc && PD.svc !== s) PD = PD0();
+    PD.invite = { id: ctx.q.invite, name: ctx.q.name || 'العامل' };
+    if (s) { PD.svc = s; if (PD.step === 1) PD.step = 2; }
+  }
   return { html: '<div id="pwrap"></div>', nav: 'post', mount: () => postPaint() };
 }, { auth: true });
 
@@ -1374,9 +1394,10 @@ function postPaint() {
     body = `<div class="wrap gap" style="margin-top:12px">
       <button class="card row" data-a="changesvc" style="text-align:start">${tileHtml(P.svc)}<div class="sp"><div class="xs muted">الخدمة</div><b>${esc(s.name)}</b></div><span class="badge soft">تغيير</span></button>
       ${P.invite ? `<div class="banner teal">${ic('users')}<span>سيصل الطلب مباشرة إلى <b>${esc(P.invite.name)}</b> وأيضا لباقي العمال.</span><button data-a="rminvite" style="margin-inline-start:auto" aria-label="إزالة">${ic('close', 's')}</button></div>` : ''}
-      ${P.svc === 'other' ? `<div class="banner teal">${ic('info')}<span>اكتب اسم الخدمة بوضوح في العنوان (مثال: تطريز ثوب فلاحي، نصب خيمة 4×6)، وسنوصله للعمال المناسبين.</span></div>` : ''}
+      ${P.svc === 'other' ? `<div class="banner teal" id="p-otherhint">${ic('info')}<span>اكتب اسم الخدمة بوضوح بالعنوان (مثال: تصليح بسكليت، تصليح ساعات). ولو خدمتك موجودة بالقائمة، اضغط «تغيير» واخترها حتى يوصل طلبك لأصحاب المهنة.</span></div>` : ''}
       <div class="field"><label for="p-t">${P.svc === 'other' ? 'شو الخدمة اللي بدك إياها؟' : 'عنوان الطلب'}</label><input class="inp" id="p-t" maxlength="90" placeholder="${esc(P.svc === 'other' ? 'مثال: تصليح بابور كاز' : (EXAMPLES[P.svc] || 'مثال: وصف مختصر للمطلوب'))}" value="${esc(P.title)}"></div>
-      <div class="field"><label for="p-d">التفاصيل (اختياري)</label><textarea class="inp" id="p-d" maxlength="600" placeholder="اكتب شو المطلوب بالتفصيل، هل المواد جاهزة، أي معلومة تساعد العامل">${esc(P.descr)}</textarea><div class="counter" id="p-dc">${P.descr.length}/600</div></div>
+      <div class="field"><label for="p-d">التفاصيل (اختياري)</label><textarea class="inp" id="p-d" maxlength="600" placeholder="اكتب شو المطلوب بالتفصيل، هل المواد جاهزة، أي معلومة تساعد العامل">${esc(P.descr)}</textarea>
+        <div class="row" style="align-items:flex-start;gap:8px"><p class="hint sp" id="p-dpriv">${ic('lock', 's')} لا تكتب رقمك أو عنوانك بالتفاصيل، لأنها بتظهر لكل الناس. رقمك بيظهر للعامل تلقائيا بعد ما تقبل عرضه.</p><div class="counter" id="p-dc">${P.descr.length}/600</div></div></div>
       <div class="field"><span class="lbl">المنطقة</span><div class="wrapchips">${AREAS.map(a => `<button type="button" class="chip sm ${P.area === a ? 'on' : ''}" data-a="parea" data-v="${esc(a)}">${esc(a)}</button>`).join('')}</div></div>
       <div class="field"><span class="lbl">الموعد</span><div class="wrapchips">${['اليوم', 'غدا', 'هذا الأسبوع', 'مرن'].map(a => `<button type="button" class="chip sm ${P.when === a ? 'on' : ''}" data-a="pwhen" data-v="${a}">${a}</button>`).join('')}</div></div>
       <button type="button" class="toggle ${P.urgent ? 'on' : ''}" data-a="purgent" role="switch" aria-checked="${P.urgent}"><span class="sp"><b>${ic('bolt', 's')} مستعجل</b><div class="hint">يظهر طلبك بشارة مميزة للعمال</div></span><span class="sw"></span></button>
@@ -1501,6 +1522,9 @@ route(/^\/worker\/([0-9a-f-]{36})$/, async ctx => {
   const w = await rpc('worker_get', { p_id: ctx.params[0] });
   WP = w;
   const me = S.me && S.me.id === w.id;
+  const canShare = w.status === 'approved' && !w.demo;
+  /* which service «ادعُه لطلبك» opens: the only one, or the one the customer was browsing (?s=); otherwise ask (null) */
+  const opts = inviteSvcs(w), pick = opts.length === 1 ? opts[0] : opts.includes(ctx.q.s) ? ctx.q.s : opts.length ? null : '';
   const av = safeImg(w.avatar) || safeImg(w.thumb);
   const photos = (w.photos || []).map(safeImg).filter(Boolean);
   const stat = (v, l) => `<div class="card" style="padding:8px 6px;text-align:center"><div class="h2" style="color:var(--primary);line-height:1.2">${v}</div><div class="xs muted">${l}</div></div>`;
@@ -1509,7 +1533,7 @@ route(/^\/worker\/([0-9a-f-]{36})$/, async ctx => {
     : '<p class="muted sm">لا توجد آراء بعد — سيظهر هنا تقييم الزبائن بعد إنجاز الطلبات.</p>';
   const statusNote = me && w.status !== 'approved' ? `<div class="banner ${w.status === 'pending' ? '' : 'bad'}" style="margin:0 16px 12px">${ic('info')}<span>${w.status === 'pending' ? 'ملفك قيد المراجعة، لن يظهر للناس قبل الموافقة.' : w.status === 'rejected' ? 'لم تتم الموافقة على ملفك — عدّله وأعد الإرسال.' : 'ملفك غير نشط حاليا.'}</span></div>` : '';
   const head = `<div style="background:var(--deep);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 20px;border-radius:0 0 30px 30px;text-align:center">
-      <div class="row"><button class="ibtn" data-a="back" aria-label="رجوع" style="background:rgba(255,255,255,.14);border:0;color:#fff">${ic('back')}</button><span class="sp"></span>${me ? '' : `<button class="ibtn" data-a="reportworker" aria-label="إبلاغ" style="background:rgba(255,255,255,.14);border:0;color:#fff">${ic('flag')}</button>`}</div>
+      <div class="row"><button class="ibtn" data-a="back" aria-label="رجوع" style="background:rgba(255,255,255,.14);border:0;color:#fff">${ic('back')}</button><span class="sp"></span>${canShare ? `<button class="ibtn" data-a="shareworker" aria-label="شارك الملف على واتساب" style="background:rgba(255,255,255,.14);border:0;color:#fff">${ic('share')}</button>` : ''}${me ? '' : `<button class="ibtn" data-a="reportworker" aria-label="إبلاغ" style="background:rgba(255,255,255,.14);border:0;color:#fff">${ic('flag')}</button>`}</div>
       <div style="margin-top:-10px;display:flex;flex-direction:column;align-items:center;gap:6px">
         <span class="av lg" ${av ? `data-a="zoomav"` : ''} style="${av ? '' : `background:hsl(${hue(w.name)} 42% 34%)`}">${av ? `<img alt="" src="${av}">` : initial(w.name)}</span>
         <div class="row" style="justify-content:center;flex-wrap:wrap"><h1 style="font-family:var(--f-head);font-weight:400;font-size:30px;line-height:1.3">${esc(w.name)}</h1>
@@ -1520,14 +1544,34 @@ route(/^\/worker\/([0-9a-f-]{36})$/, async ctx => {
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${stat(w.count > 0 ? Number(w.rating).toFixed(1) : '—', 'التقييم')}${stat(w.done, 'طلب منجز')}${stat(w.exp != null ? w.exp : '—', 'سنة خبرة')}</div>
       ${w.hours ? `<div class="banner">${ic('sun')}<div><b>أوقات العمل</b><div style="font-weight:600">${esc(w.hours)}</div><div class="xs">قد تتغير حسب الكهرباء والإنترنت.</div></div></div>` : ''}
       ${w.bio ? `<div class="card gap"><b>نبذة</b><p style="line-height:1.7">${esc(w.bio)}</p>${w.cert ? `<div class="row sm">${ic('shield', 's')}<b>المؤهل:</b> ${esc(w.cert)}</div>` : ''}</div>` : ''}
-      <div class="gap"><b>يشتغل في</b><div class="wrapchips">${(w.services || []).map(s => s === 'other' ? (w.other ? `<span class="chip">${emo(s)} ${esc(w.other)}</span>` : '') : `<a class="chip" href="#/svc/${esc(s)}">${emo(s)} ${esc(svc(s).name)}</a>`).join('')}</div></div>
+      <div class="gap"><b>يشتغل في</b><div class="wrapchips">${(w.services || []).map(s => s === 'other' ? (w.other ? `<span class="chip ut">${emo(s)} ${esc(w.other)}</span>` : '') : `<a class="chip" href="#/svc/${esc(s)}">${emo(s)} ${esc(svc(s).name)}</a>`).join('')}</div></div>
       ${photos.length ? `<div class="gap"><b>صور من الأعمال</b><div class="gal">${photos.map((p, i) => `<button data-a="zoomph" data-i="${i}" aria-label="صورة ${i + 1}"><img alt="" src="${p}" loading="lazy"></button>`).join('')}</div></div>` : ''}
       <div class="gap"><b>آراء الزبائن</b>${reviews}</div></div>`;
   const cta = me
-    ? `<div class="sticky-cta"><a class="btn" href="#/join">${ic('edit', 's')} تعديل ملفي</a></div>`
-    : (w.status === 'approved' ? `<div class="sticky-cta"><a class="btn sun" href="#/post?invite=${esc(w.id)}&name=${encodeURIComponent(w.name)}&s=${esc((w.services || [])[0] || '')}">${ic('plus', 's')} ادعُه لطلبك</a></div>` : '');
+    ? `<div class="sticky-cta"><div class="btns"><a class="btn" href="#/join">${ic('edit', 's')} تعديل ملفي</a>${canShare ? `<button class="btn wa" data-a="shareworker">${ic('share', 's')} شارك ملفي</button>` : ''}</div></div>`
+    : (w.status === 'approved' ? `<div class="sticky-cta">${pick === null
+      ? `<button class="btn sun" data-a="invitepick">${ic('plus', 's')} ادعُه لطلبك</button>`
+      : `<a class="btn sun" href="#${esc(inviteUrl(w, pick))}">${ic('plus', 's')} ادعُه لطلبك</a>`}</div>` : '');
   return { html: head + '<div style="height:0"></div>' + statusNote + body + cta, nonav: true };
 });
+/* there is no «main service» in the data, and services[0] is just the first in the stored order — so never guess between several */
+const inviteSvcs = w => (w.services || []).filter(s => activeSvcs().some(x => x.slug === s));
+const inviteUrl = (w, s) => '/post?invite=' + encodeURIComponent(w.id) + '&name=' + encodeURIComponent(w.name) + (s ? '&s=' + encodeURIComponent(s) : '');
+ACT.invitepick = () => {
+  const w = WP; if (!w) return;
+  openSheet(`<h3>شو الخدمة اللي بدك إياها؟</h3><p class="muted sm" style="margin-bottom:12px">اختر وحدة من خدمات ${esc(w.name)}، وطلبك بيوصل مباشرة.</p>
+    <div class="gap">${inviteSvcs(w).map(s => `<a class="card row" href="#${esc(inviteUrl(w, s))}" data-s="${esc(s)}">${tileHtml(s)}<b class="sp">${esc(s === 'other' ? (w.other || svc(s).name) : svc(s).name)}</b>${ic('chev', 's')}</a>`).join('')}</div>`);
+};
+ACT.shareworker = () => {
+  const w = WP; if (!w) return;
+  const mine = S.me && S.me.id === w.id;
+  const sv = (w.services || []).map(s => s === 'other' ? (w.other || '') : svc(s).name).filter(Boolean).join('، ');
+  const link = APP_URL + '#/worker/' + w.id;
+  const text = mine
+    ? `أنا ${w.name}${sv ? '، بشتغل في: ' + sv : ''}${w.area ? ' (' + w.area + ')' : ''} 🛠️\nاطلب خدمتي عبر تطبيق «شغلة»، وشوف ملفي من هون:\n${link}`
+    : `شوف ملف ${w.name} على تطبيق «شغلة» 🛠️\n${sv}${w.area ? ' · 📍 ' + w.area : ''}\nبتقدر تطلب الخدمة مباشرة من هون:\n${link}`;
+  if (navigator.share) navigator.share({ text }).catch(() => {}); else window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+};
 ACT.zoomav = () => { const a = safeImg(WP && WP.avatar); if (a) lightbox(a); };
 ACT.zoomph = t => { const p = safeImg((WP.photos || [])[+t.dataset.i]); if (p) lightbox(p); };
 ACT.reportworker = async () => {
@@ -1554,7 +1598,7 @@ route(/^\/join$/, async ctx => {
   }
   if (!JD.area && S.me.area) JD.area = S.me.area;
   return { html: '<div id="jwrap"></div>', nonav: true, mount: () => joinPaint() };
-}, { auth: true });
+}, { auth: true, guestTab: 'signup' }); /* a guest tapping «انضم كعامل» is almost always new */
 
 function joinPaint() {
   const w = $('#jwrap'); if (!w) return;
@@ -1590,10 +1634,12 @@ function joinPaint() {
       ${health ? `<div class="field"><label for="j-cert">المؤهل / الشهادة (مطلوب للخدمات الصحية)</label><input class="inp" id="j-cert" maxlength="120" placeholder="مثال: بكالوريوس علاج طبيعي — أو دورة معتمدة في الحجامة" value="${esc(J.cert)}"></div><div class="banner teal">${ic('info')}<span>قد نتواصل معك هاتفيا للتحقق من المؤهل.</span></div>` : ''}</div>
       <div class="sticky-cta"><button class="btn" data-a="joinnext">التالي (${J.svcs.length}/5)</button></div>`;
   } else if (J.step === 3) {
+    if (J.exp === '' || J.exp == null) J.exp = 1; /* the stepper shows 1 by default — so 1 is what counts */
+    const hp = hoursParts(J.hours);
     body = `<div class="wrap gap" style="margin-top:12px"><h2 class="h2">عن خبرتك</h2>
       <div class="field"><label for="j-bio">نبذة عنك وعن شغلك</label><textarea class="inp" id="j-bio" maxlength="400" placeholder="مثال: سبّاك بخبرة 10 سنوات في تمديدات المطابخ والحمامات، ألتزم بالمواعيد وأضمن الشغل.">${esc(J.bio)}</textarea><div class="counter" id="j-bc">${J.bio.length}/400 (20 على الأقل)</div></div>
-      <div class="field"><label>سنوات الخبرة</label>${stepper('j-exp', J.exp === '' ? 1 : J.exp, { step: 1, min: 0, label: 'سنوات الخبرة' }).replace('<b class="muted">₪</b>', '<b class="muted">سنة</b>')}</div>
-      <div class="field"><label for="j-hours">أوقات العمل</label><input class="inp" id="j-hours" maxlength="60" placeholder="مثال: السبت – الخميس، 9 ص – 3 م" value="${esc(J.hours)}"><div class="wrapchips">${HOURS_PRESETS.map(h => `<button type="button" class="chip sm" data-a="jhours" data-v="${h}">${h}</button>`).join('')}</div></div>
+      <div class="field"><label>سنوات الخبرة</label>${stepper('j-exp', J.exp, { step: 1, min: 0, max: 60, label: 'سنوات الخبرة' }).replace('<b class="muted">₪</b>', '<b class="muted">سنة</b>')}</div>
+      <div class="field"><label for="j-hours">أوقات العمل</label><input class="inp" id="j-hours" maxlength="60" placeholder="مثال: السبت – الخميس، 9 ص – 3 م" value="${esc(J.hours)}"><div class="wrapchips">${HOURS_PRESETS.map(h => `<button type="button" class="chip sm ${hp.includes(h) ? 'on' : ''}" data-a="jhours" data-v="${h}" aria-pressed="${hp.includes(h)}">${h}</button>`).join('')}</div><div class="hint">تقدر تختار أكثر من وحدة، واضغط عليها مرة ثانية لتشيلها.</div></div>
       <div class="field"><span class="lbl">منطقتك الأساسية</span><div class="wrapchips">${AREAS.map(a => `<button type="button" class="chip sm ${J.area === a ? 'on' : ''}" data-a="jarea" data-v="${esc(a)}">${esc(a)}</button>`).join('')}</div></div>
       <button class="btn" data-a="joinnext">التالي</button></div>`;
   } else if (J.step === 4) {
@@ -1610,8 +1656,12 @@ function joinPaint() {
   }
   w.innerHTML = bar + `<div class="page">${body}</div>`;
   const bio = $('#j-bio'); if (bio) bio.addEventListener('input', () => { JD.bio = bio.value; $('#j-bc').textContent = bio.value.length + '/400 (20 على الأقل)'; });
-  const hrs = $('#j-hours'); if (hrs) hrs.addEventListener('input', () => { JD.hours = hrs.value; });
-  const ex = $('#j-exp'); if (ex) ex.addEventListener('input', () => { JD.exp = ex.value === '' ? '' : Math.max(0, Math.min(60, parseInt(enDigits(ex.value), 10) || 0)); });
+  const hrs = $('#j-hours'); if (hrs) hrs.addEventListener('input', () => { JD.hours = hrs.value; syncHours(); });
+  const ex = $('#j-exp'); if (ex) ex.addEventListener('input', () => {
+    const v = enDigits(ex.value).replace(/[^0-9]/g, '');
+    JD.exp = v === '' ? '' : Math.min(60, parseInt(v, 10));
+    if (JD.exp !== '' && String(JD.exp) !== ex.value) ex.value = JD.exp; /* show what counts (75 → 60) */
+  });
   const ct = $('#j-cert'); if (ct) ct.addEventListener('input', () => { JD.cert = ct.value; });
   const ot = $('#j-other'); if (ot) ot.addEventListener('input', () => { JD.other = ot.value; });
   svcPickerMount(w);
@@ -1630,7 +1680,19 @@ ACT.jsvc = t => {
   if (i >= 0) JD.svcs.splice(i, 1); else { if (JD.svcs.length >= 5) return toast('الحد الأقصى 5 خدمات', 'bad'); JD.svcs.push(s); }
   buzz(8); const y = $('#view').scrollTop; joinPaint(); $('#view').scrollTop = y;
 };
-ACT.jhours = t => { JD.hours = t.dataset.v; const i = $('#j-hours'); if (i) i.value = JD.hours; };
+/* hour presets add up (no repeats); tapping one again removes it; the two day ranges replace each other and go first */
+const HOURS_DAYS = HOURS_PRESETS.slice(0, 2);
+const hoursParts = s => String(s || '').split(/[،,]/).map(x => x.trim()).filter(Boolean);
+function syncHours() { const p = hoursParts(JD.hours); $$('[data-a=jhours]').forEach(c => { const on = p.includes(c.dataset.v); c.classList.toggle('on', on); c.setAttribute('aria-pressed', on); }); }
+ACT.jhours = t => {
+  const v = t.dataset.v; let p = hoursParts(JD.hours);
+  if (p.includes(v)) p = p.filter(x => x !== v);
+  else if (HOURS_DAYS.includes(v)) p = [v].concat(p.filter(x => !HOURS_DAYS.includes(x)));
+  else p.push(v);
+  const next = p.join('، ');
+  if (next.length > 60) return toast('أوقات العمل صارت طويلة، اختصرها شوي', 'bad');
+  JD.hours = next; const i = $('#j-hours'); if (i) i.value = next; syncHours(); buzz(6);
+};
 ACT.jarea = t => { JD.area = t.dataset.v; $$('[data-a=jarea]').forEach(c => c.classList.toggle('on', c === t)); buzz(6); };
 ACT.jaddph = async () => {
   const fs = await pickFile(true); if (!fs.length) return;
@@ -1707,7 +1769,7 @@ function adWorkerCard(w, pending) {
   const av = safeImg(w.avatar) || safeImg(w.thumb), photos = (w.photos || []).map(safeImg).filter(Boolean);
   return `<div class="card gap" data-w="${esc(w.id)}"><div class="row">${av ? `<button data-a="zoomsrc" data-s="${av}" class="av lg" style="width:84px;height:84px"><img alt="" src="${av}"></button>` : avatar(w.name, w.thumb, 'lg')}
       <div class="sp"><b style="font-size:17px">${esc(w.name)}</b><div class="row sm"><a class="ltr b" href="tel:${esc(w.phone)}" style="color:var(--primary)">${esc(w.phone)}</a></div><div class="xs muted">${w.submitted ? 'قدّم ' + ago(w.submitted) : 'سجّل ' + ago(w.joined)} · ${esc(w.area || '')}</div></div></div>
-    <div class="wrapchips">${(w.services || []).map(s => `<span class="badge">${emo(s)} ${esc(s === 'other' ? 'أخرى: ' + (w.other || '') : svc(s).name)}</span>`).join('')}<span class="badge gray">${w.exp != null ? w.exp + ' سنة خبرة' : ''}</span></div>
+    <div class="wrapchips">${(w.services || []).map(s => `<span class="badge${s === 'other' ? ' ut' : ''}">${emo(s)} ${esc(s === 'other' ? 'أخرى: ' + (w.other || '') : svc(s).name)}</span>`).join('')}<span class="badge gray">${w.exp != null ? w.exp + ' سنة خبرة' : ''}</span></div>
     ${w.cert ? `<div class="sm">${ic('shield', 's')} <b>المؤهل:</b> ${esc(w.cert)}</div>` : ''}<div class="sm"><b>الأوقات:</b> ${esc(w.hours || '')}</div><p class="sm" style="line-height:1.6">${esc(w.bio || '')}</p>
     ${photos.length ? `<div class="gal">${photos.map(p => `<button data-a="zoomsrc" data-s="${p}"><img alt="" src="${p}" loading="lazy"></button>`).join('')}</div>` : ''}
     ${w.note ? `<div class="banner bad">${ic('alert')}<span>${esc(w.note)}</span></div>` : ''}
