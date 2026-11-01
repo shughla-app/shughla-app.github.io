@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "شغلة",
+  "short_name": "شغلة",
+  "description": "سوق خدمات في غزة: انشر طلبك وتوصلك عروض من عمّال قريبين منك، أو اكسب من مهارتك.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#063F46",
+  "background_color": "#063F46",
+  "categories": ["business", "lifestyle", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="شغلة">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>شغلة</title>
 <style>
 :root{
@@ -306,6 +309,15 @@ html.dark .g-build{--c:#D9A06A}html.dark .g-craft{--c:#F08AC8}html.dark .g-agri{
 .svcrow:last-child{border-bottom:0}
 .svcrow.off{opacity:.55}
 
+/* «ثبّت شغلة على جوالك» sheet */
+.pwa-app{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:var(--bg);margin:12px 0 14px}
+.pwa-app i{width:52px;height:52px;border-radius:16px;background:var(--sun);color:#10272D;font:400 32px/1 var(--f-head);font-style:normal;display:flex;align-items:center;justify-content:center;transform:rotate(-6deg);flex:none;padding-bottom:3px}
+.pwa-steps{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:st}
+.pwa-steps li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.7}
+.pwa-steps li::before{counter-increment:st;content:counter(st);flex:none;width:26px;height:26px;border-radius:50%;background:var(--primary);color:var(--primary-ink);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.pwa-steps .k{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 5px;border-radius:7px;border:1px solid var(--line2);background:var(--surface);vertical-align:middle;margin:0 2px;font-weight:700;line-height:1}
+.pwa-steps .k.v .ic{transform:rotate(90deg)}
+
 .socs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .soc{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:14px;font-weight:700;font-size:13px;background:var(--teal-soft);color:var(--primary)}
 .soc.ig{background:#FCE7F1;color:#B0306A}.soc.fb{background:#E6EEFB;color:#1D5BC2}.soc.wa{background:#E3F6EA;color:#0F6B32}.soc.tt{background:#ECEDEF;color:#111418}
@@ -481,7 +493,7 @@ const ERR = {
   bad_area: 'اختر المنطقة',
   bad_budget: 'الحد الأدنى أكبر من الأعلى',
   bad_service: 'اختر خدمة صحيحة',
-  need_photo: 'أضف صورتك الشخصية أولا',
+  need_photo: 'أضف صورة لملفك أولا',
   need_service: 'اختر خدمة واحدة على الأقل',
   need_bio: 'اكتب نبذة عن خبرتك (20 حرفا على الأقل)',
   need_exp: 'حدّد سنوات الخبرة',
@@ -540,6 +552,10 @@ async function rpc(fn, args, opt) {
 }
 function updateOffline() {
   const el = $('#offline'); if (!el) return;
+  /* the «save the file» hint is only for the file preview; the installed app opens its saved copy offline */
+  if (!S.online) el.textContent = location.protocol === 'file:' || location.origin === 'null'
+    ? 'تعذّر الاتصال بالخادم. إن فتحت الملف من معاينة داخل تطبيق، احفظه وافتحه بمتصفح الجوال'
+    : 'تعذّر الاتصال — تأكد من الإنترنت، ولما يرجع افتح الصفحة من جديد';
   el.hidden = S.online;
 }
 window.addEventListener('online', () => { S.online = true; updateOffline(); });
@@ -580,6 +596,8 @@ const ICONS = {
   tt: '<path d="M15 2.5v12.5a4.5 4.5 0 1 1-4.5-4.5" stroke-width="2.4"/><path d="M15 2.5c.5 3.1 2.6 5.2 5.7 5.4" stroke-width="2.4"/>',
   msg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
   share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',
+  ishare: '<path d="M12 15V3M8 7l4-4 4 4"/><path d="M8 10H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-2"/>',
+  dl: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
   flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
   pin: '<path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -638,7 +656,8 @@ function openSheet(html, onMount) {
   sheetEl.innerHTML = '<div class="grab"></div>' + html;
   document.body.append(scrimEl, sheetEl);
   scrimEl.onclick = () => closeSheet();
-  requestAnimationFrame(() => { scrimEl.classList.add('show'); sheetEl.classList.add('show'); });
+  const s = sheetEl, c = scrimEl; /* the sheet may already be closed (globals null) by the next frame, e.g. a page change */
+  requestAnimationFrame(() => { c.classList.add('show'); s.classList.add('show'); });
   if (onMount) onMount(sheetEl);
   return sheetEl;
 }
@@ -882,16 +901,6 @@ async function boot() {
   await render();
   done();
   startPolling();
-  appIcon();
-}
-function appIcon() {
-  try {
-    const c = document.createElement('canvas'); c.width = c.height = 180; const x = c.getContext('2d');
-    x.fillStyle = '#063F46'; x.fillRect(0, 0, 180, 180);
-    x.fillStyle = '#F4A51C'; x.beginPath(); x.arc(90, 90, 62, 0, 7); x.fill();
-    x.fillStyle = '#063F46'; x.font = '700 92px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('ش', 90, 98);
-    const l = document.createElement('link'); l.rel = 'apple-touch-icon'; l.href = c.toDataURL('image/png'); document.head.appendChild(l);
-  } catch (e) {}
 }
 
 /* ====== feed (home + service page) ====== */
@@ -1060,6 +1069,7 @@ route(/^\/login$/, async ctx => {
             toast(su ? 'أهلا بك في شغلة 🎉' : 'أهلا ' + r.me.name.split(' ')[0], 'ok');
             if (su) confetti();
             replace(ctx.q.next || '/');
+            if (su && (!ctx.q.next || ctx.q.next === '/')) pwaAsk(); /* signed up on the way to something (join, post, a job…): ask after that instead */
           } catch (er) { fail(er); }
         });
       });
@@ -1100,6 +1110,7 @@ route(/^\/account$/, async () => {
       <div class="menu">
         <a href="#/notifs">${ic('bell')}<span>الإشعارات</span>${S.unread > 0 ? `<span class="badge bad">${S.unread}</span>` : ''}<span class="go">${ic('chev', 's')}</span></a>
         <a href="#/orders">${ic('list')}<span>طلباتي وعروضي</span><span class="go">${ic('chev', 's')}</span></a>
+        ${pwaStandalone() ? '' : `<button data-a="pwainstall">${ic('dl')}<span>ثبّت التطبيق</span><span class="go">${ic('chev', 's')}</span></button>`}
         <button data-a="darkmode">${ic('moon')}<span class="sp">وضع التوفير (داكن)</span><span class="badge ${document.documentElement.classList.contains('dark') ? 'ok' : 'gray'}">${document.documentElement.classList.contains('dark') ? 'مفعّل' : 'متوقف'}</span></button>
         <button data-a="shareapp">${ic('share')}<span>ادعُ صديقا عبر واتساب</span><span class="go">${ic('chev', 's')}</span></button>
         <button data-a="chpass">${ic('lock')}<span>تغيير كلمة السر</span><span class="go">${ic('chev', 's')}</span></button>
@@ -1113,7 +1124,7 @@ route(/^\/account$/, async () => {
   return { html, nav: 'account' };
 });
 function menuGuest() {
-  return `<div class="wrap gap" style="margin-top:6px"><div class="menu"><button data-a="darkmode">${ic('moon')}<span class="sp">وضع التوفير (داكن)</span></button><button data-a="terms">${ic('info')}<span>الشروط والأمان</span></button></div>${socialHtml()}</div>`;
+  return `<div class="wrap gap" style="margin-top:6px"><div class="menu">${pwaStandalone() ? '' : `<button data-a="pwainstall">${ic('dl')}<span>ثبّت التطبيق</span></button>`}<button data-a="darkmode">${ic('moon')}<span class="sp">وضع التوفير (داكن)</span></button><button data-a="terms">${ic('info')}<span>الشروط والأمان</span></button></div>${socialHtml()}</div>`;
 }
 ACT.avail = async t => {
   const on = !S.me.worker.available;
@@ -1440,7 +1451,7 @@ ACT.ppublish = t => busy(t, async () => {
   try {
     const r = await rpc('job_create', { p_service: PD.svc, p_title: PD.title, p_descr: PD.descr || null, p_area: PD.area, p_bmin: fx ? PD.bmin : null, p_bmax: fx ? PD.bmax : null, p_when: PD.when, p_pay: PD.pay, p_urgent: PD.urgent, p_invited: PD.invite ? PD.invite.id : null });
     buzz([30, 40, 30]); const saved = { title: PD.title, area: PD.area, fx, bmin: PD.bmin, bmax: PD.bmax };
-    PD = PD0(); PD.done = r.id; PD.last = saved; postPaint();
+    PD = PD0(); PD.done = r.id; PD.last = saved; postPaint(); pwaAsk();
   } catch (e) { fail(e); }
 });
 ACT.sharenew = () => {
@@ -1615,13 +1626,14 @@ function joinPaint() {
     body = `<div class="wrap gap" style="margin-top:8px">
       <div class="card gap" style="background:var(--brand-grad);color:#fff;border:0"><h2 class="h2">اكسب من مهارتك 💪</h2><p style="opacity:.9">استقبل طلبات حقيقية قريبة منك، وقدّم عروضك، وابنِ سمعتك بتقييمات الزبائن.</p></div>
       <div class="card gap"><b>ما الذي نحتاجه منك؟</b><ul class="req" style="margin:0;padding-inline-start:20px">
-        <li>صورة شخصية واضحة لوجهك</li><li>الخدمات التي تتقنها (حتى 5) — وإن لم تجد مهنتك اكتبها بنفسك</li><li>نبذة عن خبرتك وسنوات العمل</li><li>أوقات عملك ومنطقتك</li><li>مؤهل أو شهادة للخدمات الصحية (علاج طبيعي، تمريض، حجامة…)</li><li>صور من أعمالك السابقة (اختياري لكنها ترفع فرصك)</li></ul></div>
+        <li>صورة واضحة لوجهك — وللأخوات: ممكن صورة من شغلك بدل الصورة الشخصية</li><li>الخدمات التي تتقنها (حتى 5) — وإن لم تجد مهنتك اكتبها بنفسك</li><li>نبذة عن خبرتك وسنوات العمل</li><li>أوقات عملك ومنطقتك</li><li>مؤهل أو شهادة للخدمات الصحية (علاج طبيعي، تمريض، حجامة…)</li><li>صور من أعمالك السابقة (اختياري لكنها ترفع فرصك)</li></ul></div>
       <div class="banner teal">${ic('shield')}<span>نراجع كل طلب يدويا قبل التفعيل حفاظا على ثقة الناس، وعادة يكون القرار خلال 24 ساعة.</span></div>
       <button class="btn sun" data-a="joinnext">ابدأ التسجيل</button></div>`;
   } else if (J.step === 1) {
     const im = J.avatar;
     body = `<div class="wrap gap" style="margin-top:12px">${J.note && J.status === 'rejected' ? `<div class="banner bad">${ic('alert')}<span><b>سبب عدم الموافقة:</b> ${esc(J.note)}</span></div>` : ''}
-      <h2 class="h2">صورتك الشخصية</h2><p class="muted sm">صورة واضحة لوجهك بإضاءة جيدة. الزبائن يثقون أكثر بالعامل الذي يظهر وجهه.</p>
+      <h2 class="h2">صورة ملفك</h2><p class="muted sm">صورة واضحة لوجهك بإضاءة جيدة.</p>
+      <div class="banner teal" id="j-sisters">${ic('info')}<span><b>وللأخوات:</b> ممكن صورة من شغلك بدل الصورة الشخصية (مثلا قطعة طرّزتيها أو أكلة عملتيها).</span></div>
       <button class="photo-pick ${im ? 'has' : ''}" data-a="pickavatar" aria-label="اختيار صورة">${im ? `<img alt="" src="${im}">` : `${ic('camera', 'l')}<b>اضغط لإضافة صورة</b><span class="xs">التقط صورة أو اختر من المعرض</span>`}</button>
       ${im ? `<button class="btn soft sm" data-a="pickavatar" style="align-self:center">${ic('refresh', 's')} تغيير الصورة</button>` : ''}
       <button class="btn" data-a="joinnext">التالي</button></div>`;
@@ -1726,7 +1738,7 @@ ACT.joinsend = t => busy(t, async () => {
       p_avatar: JD.avatarNew ? JD.avatar : null, p_thumb: JD.avatarNew ? JD.thumb : null, p_photos: JD.photosNew ? JD.photos : null, p_submit: true, p_other: JD.svcs.includes('other') ? JD.other.trim() : null
     });
     await refreshMe(); buzz([30, 40, 30]);
-    if (r.status === 'pending') { JD.sent = true; confetti(); joinPaint(); }
+    if (r.status === 'pending') { JD.sent = true; confetti(); joinPaint(); pwaAsk(); }
     else { toast('تم حفظ التعديلات', 'ok'); go('/account'); }
   } catch (e) { fail(e); }
 });
@@ -1780,7 +1792,8 @@ function adWorkerCard(w, pending) {
 ACT.zoomsrc = t => { const s = safeImg(t.dataset.s); if (s) lightbox(s); };
 async function adPending() {
   const list = await rpc('admin_workers', { p_status: 'pending' }); AD.cache.pending = list.length;
-  return list.length ? `<div class="list" style="margin-top:8px">${list.map(w => adWorkerCard(w, true)).join('')}</div>` : empty('لا توجد طلبات معلّقة', 'كل طلبات الانضمام تمت مراجعتها 👏');
+  return list.length ? `<div class="wrap" style="margin-top:8px"><div class="banner teal" id="ad-photo-note">${ic('info')}<span><b>صورة الملف:</b> وجه واضح، أو للأخوات صورة من شغلهن بدل الصورة الشخصية. صورة الشغل الواضحة من أخت مقبولة.</span></div></div>
+    <div class="list" style="margin-top:10px">${list.map(w => adWorkerCard(w, true)).join('')}</div>` : empty('لا توجد طلبات معلّقة', 'كل طلبات الانضمام تمت مراجعتها 👏');
 }
 async function adWorkers() {
   const st = AD.wst;
@@ -1806,7 +1819,7 @@ ACT.adapprove = async t => {
   try { await rpc('admin_review_worker', { p_worker: t.dataset.id, p_decision: 'approve' }); toast('تم قبول العامل', 'ok'); confetti(); render(); } catch (e) { fail(e); }
 };
 ACT.adreject = async t => {
-  const note = await promptSheet({ title: 'سبب الرفض', text: 'سيصل هذا السبب للعامل ليعدّل ويعيد الإرسال.', ph: 'مثال: الصورة غير واضحة — أرسل صورة لوجهك بإضاءة جيدة', ok: 'رفض', danger: true });
+  const note = await promptSheet({ title: 'سبب الرفض', text: 'سيصل هذا السبب للعامل ليعدّل ويعيد الإرسال. تذكير: صورة من الشغل بدل الوجه مقبولة للأخوات.', ph: 'مثال: الصورة غير واضحة — أرسل صورة أوضح بإضاءة جيدة', ok: 'رفض', danger: true });
   if (!note) return;
   try { await rpc('admin_review_worker', { p_worker: t.dataset.id, p_decision: 'reject', p_note: note }); toast('تم الرفض وإبلاغ العامل'); render(); } catch (e) { fail(e); }
 };
@@ -1866,6 +1879,69 @@ ACT.adsugdismiss = async t => {
 
 /* ====== start ====== */
 window.addEventListener('DOMContentLoaded', boot);
+
+/* ====== install as an app (PWA) ====== */
+const PWA = {
+  bip: null, shown: false, auto: false,
+  ios: () => /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1),
+  /* Facebook / Instagram / TikTok open links in their own browser, which can't install anything */
+  inApp: () => /FBAN|FBAV|FB_IAB|FBIOS|Instagram|musical_ly|Bytedance|TikTok|Snapchat|Line\//i.test(navigator.userAgent),
+  phone: () => /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || PWA.ios()
+};
+const PWA_GAP = 7 * 864e5; /* after «بعدين» it doesn't come back by itself for a week (the item in «حسابي» stays) */
+function pwaStandalone() { try { return matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) { return false; } }
+function pwaCanAsk() {
+  if (pwaStandalone() || LS.get('pwa_ok', false)) return false;
+  if (Date.now() - LS.get('pwa_no', 0) < PWA_GAP) return false;
+  return !!PWA.bip || PWA.phone(); /* only where we can help: the browser offers to install, or a phone we have steps for */
+}
+/* after signup / after sending the join request: one gentle ask, once the screen has settled */
+function pwaAsk() {
+  setTimeout(() => { if (sheetEl || !pwaCanAsk()) return; $$('.toast').forEach(t => t.remove()); pwaSheet(true); }, 1600);
+}
+function pwaSheet(auto) {
+  const how = PWA.bip ? 'bip' : LS.get('pwa_ok', false) ? 'done' : PWA.inApp() ? 'inapp' : PWA.ios() ? 'ios' : 'menu';
+  const k = (x, v) => `<span class="k${v ? ' v' : ''}">${x}</span>`;
+  const steps = {
+    ios: [`اضغط زر المشاركة ${k(ic('ishare', 's'))} (إذا مش ظاهر، اضغط ${k('•••')} أول)`, 'اختار «إضافة إلى الشاشة الرئيسية»', 'اضغط «إضافة»، وبتصير شغلة على شاشتك'],
+    menu: [`افتح قائمة المتصفح ${k(ic('dots', 's'), 1)} فوق`, 'اختار «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»', 'وافق، وبتصير شغلة على شاشتك'],
+    inapp: [`إنت فاتح شغلة من جوّا فيسبوك أو إنستغرام: اضغط ${k(ic('dots', 's'), 1)} أو ${k('•••')} فوق`, 'اختار «فتح في المتصفح»', 'ومن المتصفح ثبّتها من قائمته']
+  }[how];
+  const done = how === 'done';
+  const body = how === 'bip'
+    ? `<div class="btns"><button class="btn sun" data-a="pwago">${ic('dl', 's')} ثبّت</button><button class="btn ghost" data-a="pwalater">بعدين</button></div>`
+    : (steps ? `<ol class="pwa-steps">${steps.map(s => `<li><span>${s}</span></li>`).join('')}</ol>` : '') + `<button class="btn" data-a="pwalater">تمام</button>`;
+  if (PWA.shown) sheetClose = null; /* swapping our own sheet's content is not a «بعدين» */
+  openSheet(`<h3>${done ? 'شغلة مثبّتة على جوالك ✓' : 'ثبّت شغلة على جوالك 📲'}</h3>
+    <p class="muted sm">${done ? 'افتحها من أيقونتها على الشاشة الرئيسية، مثل أي تطبيق.' : 'خلّيها أيقونة على شاشتك وافتحها بكبسة وحدة مثل أي تطبيق، بدون ما تدوّر على الرابط كل مرة.'}</p>
+    <div class="pwa-app"><i aria-hidden="true">ش</i><div class="sp"><b>شغلة</b><div class="xs muted">حجمها صغير، وبدون متجر</div></div></div>${body}`);
+  PWA.shown = true; PWA.auto = !!auto;
+  sheetClose = () => { PWA.shown = false; LS.set('pwa_no', Date.now()); }; /* closed any other way = «بعدين» */
+}
+function pwaClose() { sheetClose = null; PWA.shown = false; closeSheet(); }
+ACT.pwainstall = () => pwaSheet(false);
+ACT.pwalater = () => closeSheet();
+ACT.pwago = async () => {
+  const e = PWA.bip; if (!e) return pwaSheet(PWA.auto);
+  PWA.bip = null; /* the browser's prompt can be shown only once */
+  let ok = false;
+  try { await e.prompt(); ok = (await e.userChoice).outcome === 'accepted'; } catch (er) { return pwaSheet(PWA.auto); /* no prompt after all → show the steps */ }
+  if (ok) { LS.set('pwa_ok', true); pwaClose(); } else closeSheet();
+};
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); /* no browser mini-bar at random moments: we ask at the right time */
+  PWA.bip = e; LS.del('pwa_ok'); /* the browser offers to install → it isn't installed (any more) */
+  if (PWA.shown) pwaSheet(PWA.auto); /* steps on screen → swap them for the install button */
+});
+window.addEventListener('appinstalled', () => {
+  PWA.bip = null; LS.set('pwa_ok', true);
+  if (PWA.shown) pwaClose();
+  toast('تمت إضافة شغلة لشاشة جوالك ✓', 'ok');
+});
+/* service worker: only on the real site (https) or a local test server — never from file:// */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname))) {
+  window.addEventListener('load', () => { try { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => {}); } catch (e) {} });
+}
 
 </script>
 </body>
