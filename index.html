@@ -362,7 +362,8 @@ const enDigits = s => String(s == null ? '' : s).replace(/[\u0660-\u0669]/g, d =
 document.addEventListener('input', e => {
   const t = e.target;
   if (t && t.tagName === 'INPUT' && (/^(tel|number)$/.test(t.type) || /^(numeric|tel|decimal)$/.test(t.inputMode || ''))) {
-    const v = enDigits(t.value); if (v !== t.value) t.value = v;
+    let v = enDigits(t.value); if (t.classList.contains('stin')) v = v.replace(/[^0-9]/g, '');
+    if (v !== t.value) t.value = v;
   }
 }, true);
 const LS = {
@@ -501,7 +502,7 @@ function mkErr(code, extra) { const e = new Error(code); e.code = code; e.msg = 
 const NOAUTH = { signup: 1, login: 1 };
 async function rpc(fn, args, opt) {
   const body = Object.assign({}, args || {});
-  if (!NOAUTH[fn] && S.token) body.p_t = S.token;
+  if (!NOAUTH[fn]) body.p_t = S.token || null;
   const ctl = new AbortController();
   const to = setTimeout(() => ctl.abort(), (opt && opt.timeout) || 15000);
   let res, data = null;
@@ -958,7 +959,7 @@ route(/^\/?$/, async ctx => {
   const st = HS;
   FEED = { st, seq: 0, home: true };
   const first = S.me ? esc(S.me.name.split(' ')[0]) : '';
-  const stats = S.stats ? `<p>${S.stats.workers} عامل موثّق · ${S.stats.jobs} طلب مفتوح الآن</p>` : '<p>اطلب أي خدمة أو اكسب من مهارتك</p>';
+  const stats = S.stats && S.stats.workers >= 5 ? `<p>${S.stats.workers} عامل موثّق · ${S.stats.jobs} طلب مفتوح الآن</p>` : '<p>اطلب أي خدمة أو اكسب من مهارتك</p>';
   const w = S.me && S.me.worker;
   const second = w && w.status === 'approved'
     ? `<a class="hb" href="#/worker/${esc(S.me.id)}">${ic('user', 's')} ملفي كعامل</a>`
@@ -1187,12 +1188,12 @@ function contactCard(c, who) {
 function stepper(id, val, o) {
   o = o || {};
   return `<div class="step"><button type="button" data-a="stp" data-o="${id}" data-d="${-(o.step || 10)}" data-min="${o.min || 0}" aria-label="أنقص">${ic('minus')}</button>
-    <span class="row" style="gap:6px"><input class="stin" id="${id}" type="number" inputmode="numeric" min="${o.min || 0}" max="100000" value="${val}" aria-label="${esc(o.label || '')}"><b class="muted">₪</b></span>
+    <span class="row" style="gap:6px"><input class="stin" id="${id}" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" min="${o.min || 0}" max="100000" value="${val}" aria-label="${esc(o.label || '')}"><b class="muted">₪</b></span>
     <button type="button" data-a="stp" data-o="${id}" data-d="${o.step || 10}" data-min="${o.min || 0}" aria-label="زِد">${ic('plus')}</button></div>`;
 }
 ACT.stp = t => {
   const i = $('#' + t.dataset.o); const min = +t.dataset.min || 0;
-  i.value = Math.min(100000, Math.max(min, (parseInt(i.value, 10) || 0) + (+t.dataset.d))); buzz(6);
+  i.value = Math.min(100000, Math.max(min, (parseInt(enDigits(i.value), 10) || 0) + (+t.dataset.d))); buzz(6);
   i.dispatchEvent(new Event('input', { bubbles: true }));
 };
 function bindOtp(root) {
@@ -1303,7 +1304,7 @@ function offerForm(j, prev) {
 ACT.etapick = t => { const b = t.parentNode; b.dataset.v = t.dataset.v; $$('.chip', b).forEach(c => c.classList.toggle('on', c === t)); buzz(6); };
 ACT.sendoffer = t => busy(t, async () => {
   try {
-    await rpc('offer_make', { p_job: JOB.id, p_price: parseInt($('#of-price').value, 10) || 0, p_eta: $('#of-eta').dataset.v, p_note: $('#of-note').value });
+    await rpc('offer_make', { p_job: JOB.id, p_price: parseInt(enDigits($('#of-price').value), 10) || 0, p_eta: $('#of-eta').dataset.v, p_note: $('#of-note').value });
     buzz(25); toast('تم إرسال عرضك، سنخبرك عند رد الزبون', 'ok'); render();
   } catch (e) { fail(e); }
 });
@@ -1393,8 +1394,8 @@ function postPaint() {
   svcPickerMount(w);
   const t = $('#p-t'); if (t) t.addEventListener('input', () => { PD.title = t.value; });
   const d = $('#p-d'); if (d) d.addEventListener('input', () => { PD.descr = d.value; $('#p-dc').textContent = d.value.length + '/600'; });
-  const bn = $('#p-bmin'); if (bn) bn.addEventListener('input', () => { PD.bmin = parseInt(bn.value, 10) || 0; });
-  const bx = $('#p-bmax'); if (bx) bx.addEventListener('input', () => { PD.bmax = parseInt(bx.value, 10) || 0; });
+  const bn = $('#p-bmin'); if (bn) bn.addEventListener('input', () => { PD.bmin = parseInt(enDigits(bn.value), 10) || 0; });
+  const bx = $('#p-bmax'); if (bx) bx.addEventListener('input', () => { PD.bmax = parseInt(enDigits(bx.value), 10) || 0; });
   $('#view').scrollTop = 0;
 }
 ACT.postback = () => { if (PD.done) return go('/'); if (PD.step > 1) { PD.step--; postPaint(); } else ACT.back(); };
@@ -1512,7 +1513,7 @@ route(/^\/worker\/([0-9a-f-]{36})$/, async ctx => {
       <div style="margin-top:-10px;display:flex;flex-direction:column;align-items:center;gap:6px">
         <span class="av lg" ${av ? `data-a="zoomav"` : ''} style="${av ? '' : `background:hsl(${hue(w.name)} 42% 34%)`}">${av ? `<img alt="" src="${av}">` : initial(w.name)}</span>
         <div class="row" style="justify-content:center;flex-wrap:wrap"><h1 style="font-family:var(--f-head);font-weight:400;font-size:30px;line-height:1.3">${esc(w.name)}</h1>
-          ${w.status === 'approved' ? `<span class="badge" style="background:rgba(255,255,255,.18);color:#fff">${ic('check', 's')} موثّق</span>` : ''}${w.demo ? '<span class="badge gray">نموذج</span>' : ''}</div>
+          ${w.status === 'approved' && !w.demo ? `<span class="badge" style="background:rgba(255,255,255,.18);color:#fff">${ic('check', 's')} موثّق</span>` : ''}${w.demo ? '<span class="badge gray">نموذج</span>' : ''}</div>
         <div style="color:#BFE0DE">${(w.services || []).map(s => s === 'other' ? esc(w.other || 'أخرى') : esc(svc(s).name)).join(' · ')} ${w.area ? '· ' + esc(w.area) : ''}</div>
         ${w.available ? '<span class="badge ok">متاح الآن</span>' : '<span class="badge gray">غير متاح حاليا</span>'}</div></div>`;
   const body = `<div class="wrap gap" style="margin-top:14px">
@@ -1610,7 +1611,7 @@ function joinPaint() {
   w.innerHTML = bar + `<div class="page">${body}</div>`;
   const bio = $('#j-bio'); if (bio) bio.addEventListener('input', () => { JD.bio = bio.value; $('#j-bc').textContent = bio.value.length + '/400 (20 على الأقل)'; });
   const hrs = $('#j-hours'); if (hrs) hrs.addEventListener('input', () => { JD.hours = hrs.value; });
-  const ex = $('#j-exp'); if (ex) ex.addEventListener('input', () => { JD.exp = ex.value === '' ? '' : Math.max(0, Math.min(60, parseInt(ex.value, 10) || 0)); });
+  const ex = $('#j-exp'); if (ex) ex.addEventListener('input', () => { JD.exp = ex.value === '' ? '' : Math.max(0, Math.min(60, parseInt(enDigits(ex.value), 10) || 0)); });
   const ct = $('#j-cert'); if (ct) ct.addEventListener('input', () => { JD.cert = ct.value; });
   const ot = $('#j-other'); if (ot) ot.addEventListener('input', () => { JD.other = ot.value; });
   svcPickerMount(w);
