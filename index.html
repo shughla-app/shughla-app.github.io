@@ -1,0 +1,1799 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#063F46">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="شغلة">
+<title>شغلة</title>
+<style>
+:root{
+  --bg:#F2F6F5;--surface:#fff;--ink:#10272D;--muted:#54696F;--line:#DCE6E5;--line2:#C5D4D3;
+  --primary:#0A6A72;--primary-ink:#fff;--deep:#063F46;--sun:#F4A51C;--sun-ink:#10272D;--sun-soft:#FDF0D5;--sun-ink2:#4A3300;
+  --teal-soft:#E1F0EF;--danger:#C2412D;--danger-soft:#FBE9E6;--ok:#1E8E5A;--ok-soft:#E3F4EB;
+  --shadow:0 1px 2px rgba(16,39,45,.06),0 6px 18px rgba(16,39,45,.06);
+  --r:18px;--nav:68px;
+  --f-body:'IBM Plex Sans Arabic','Noto Sans Arabic',Tahoma,system-ui,sans-serif;
+  --f-head:'Lalezar','IBM Plex Sans Arabic','Noto Sans Arabic',Tahoma,sans-serif;
+  color-scheme:light;
+}
+html.dark{
+  --bg:#0A1214;--surface:#121D20;--ink:#E7F0EF;--muted:#9AB0B3;--line:#223437;--line2:#2E4548;
+  --primary:#2FB0B9;--primary-ink:#04282B;--deep:#0D2B2F;--sun:#F4A51C;--sun-soft:#34280F;--sun-ink2:#F6D79B;
+  --teal-soft:#14302F;--danger:#F0705C;--danger-soft:#3A1D18;--ok:#4CC58A;--ok-soft:#14301F;
+  --shadow:0 1px 0 rgba(255,255,255,.03);color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none !important}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;-webkit-text-size-adjust:100%}
+body{overscroll-behavior-y:contain}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p{margin:0}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;display:inline-block;vertical-align:middle}
+.ic.s{width:16px;height:16px}.ic.l{width:28px;height:28px}
+.ic.fill{fill:currentColor;stroke-width:1.5}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+#app{max-width:520px;margin:0 auto;height:100dvh;position:relative;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+@media(min-width:560px){#app{border-inline:1px solid var(--line)}}
+#view{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 12px);scroll-behavior:auto;position:relative}
+#view.nonav{padding-bottom:calc(env(safe-area-inset-bottom) + 24px)}
+.page{animation:rise .22s ease-out both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.7);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes fall{0%{transform:translate(0,-20px) rotate(0);opacity:1}100%{transform:translate(var(--dx),420px) rotate(var(--rot));opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+/* top bars */
+.top{display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top)) 16px 8px;position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 82%,transparent)}
+.top h1{font-family:var(--f-head);font-weight:400;font-size:24px;line-height:1.3;flex:1}
+.logo{font-family:var(--f-head);font-size:30px;line-height:1;color:var(--primary);display:flex;align-items:center;gap:8px;flex:1}
+.logo i{width:30px;height:30px;border-radius:10px;background:var(--primary);color:var(--primary-ink);display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:20px;transform:rotate(-6deg)}
+.ibtn{width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;position:relative;color:var(--ink);transition:transform .12s}
+.ibtn:active{transform:scale(.92)}
+.ibtn .dot{position:absolute;top:6px;inset-inline-end:6px;min-width:18px;height:18px;border-radius:9px;background:var(--danger);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid var(--bg)}
+
+.wrap{padding:0 16px}
+.gap{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;align-items:center;gap:10px}
+.sp{flex:1;min-width:0}
+.muted{color:var(--muted)}.sm{font-size:13px}.xs{font-size:12px}
+.b{font-weight:700}
+.h2{font-family:var(--f-head);font-size:21px;line-height:1.4;font-weight:400}
+.sec{display:flex;align-items:baseline;justify-content:space-between;margin:18px 16px 8px}
+.sec b{font-size:15px}.sec a,.sec button{font-size:13px;font-weight:700;color:var(--primary)}
+
+/* hero */
+.hero{margin:4px 16px 0;padding:18px 16px 16px;border-radius:26px;background:linear-gradient(135deg,var(--deep),var(--primary));color:#fff;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;background:rgba(244,165,28,.18);inset-inline-start:-50px;top:-60px}
+.hero h2{font-family:var(--f-head);font-weight:400;font-size:25px;line-height:1.35;position:relative}
+.hero p{opacity:.85;font-size:13.5px;position:relative;margin-top:2px}
+.search{margin-top:12px;display:flex;align-items:center;gap:8px;height:48px;background:#fff;border-radius:16px;padding:0 14px;color:#10272D;position:relative}
+.search input{flex:1;min-width:0;border:0;outline:0;background:none;height:100%;color:#10272D}
+.search input::placeholder{color:#6d8186}
+.search .ic{color:#6d8186}
+.stats{display:flex;gap:8px;margin-top:12px;position:relative;flex-wrap:wrap}
+.stats span{background:rgba(255,255,255,.14);border-radius:12px;padding:3px 10px;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;gap:5px}
+
+/* segmented + chips */
+.seg{display:flex;background:var(--teal-soft);border-radius:16px;padding:4px;margin:14px 16px 0;gap:4px}
+.seg button{flex:1;height:40px;border-radius:12px;font-weight:700;font-size:14px;color:var(--muted);transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px}
+.seg button.on{background:var(--surface);color:var(--primary);box-shadow:var(--shadow)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 16px 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:38px;padding:0 14px;border-radius:19px;background:var(--surface);border:1px solid var(--line);font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s;color:var(--ink)}
+.chip.on{background:var(--primary);border-color:var(--primary);color:var(--primary-ink)}
+.chip:active{transform:scale(.95)}
+.chip.sm{height:34px;padding:0 12px;font-size:13px}
+.wrapchips{display:flex;flex-wrap:wrap;gap:8px}
+
+/* tiles by group */
+.tile{width:46px;height:46px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:23px;flex:none;background:var(--teal-soft);font-family:'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif}
+.tile.lg{width:58px;height:58px;border-radius:18px;font-size:30px}
+.g-health{--c:#C2412D}.g-home{--c:#0A6A72}.g-tech{--c:#3D4FB5}.g-transport{--c:#B07700}.g-learn{--c:#7A3FB0}.g-personal{--c:#B03F7E}.g-food{--c:#B5561B}.g-remote{--c:#1C6FA6}
+.tile[class*=g-]{background:color-mix(in srgb,var(--c) 14%,var(--surface))}
+html.dark .g-health{--c:#F0705C}html.dark .g-tech{--c:#8A98F0}html.dark .g-learn{--c:#C492F0}html.dark .g-personal{--c:#F08ABF}html.dark .g-remote{--c:#6DB8EC}html.dark .g-home{--c:#2FB0B9}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+.list{display:flex;flex-direction:column;gap:10px;padding:0 16px}
+.jcard{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;box-shadow:var(--shadow);transition:transform .12s;position:relative}
+.jcard:active{transform:scale(.985)}
+.jtitle{font-weight:700;font-size:15.5px;line-height:1.45}
+.jmeta{font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 10px;margin-top:2px}
+.jmeta span{display:inline-flex;align-items:center;gap:3px}
+.jfoot{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+.price{font-family:var(--f-head);font-size:19px;color:var(--primary);line-height:1.2}
+.badge{display:inline-flex;align-items:center;gap:4px;height:24px;padding:0 9px;border-radius:12px;font-size:12px;font-weight:700;background:var(--teal-soft);color:var(--primary);white-space:nowrap}
+.badge.sun{background:var(--sun-soft);color:var(--sun-ink2)}
+.badge.gray{background:var(--line);color:var(--muted)}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}
+.badge.bad{background:var(--danger-soft);color:var(--danger)}
+.badge.solid{background:var(--primary);color:var(--primary-ink)}
+
+.wcard{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;box-shadow:var(--shadow)}
+.wcard:active{transform:scale(.985)}
+.av{width:56px;height:56px;border-radius:50%;flex:none;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--f-head);font-size:26px;overflow:hidden;position:relative}
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+.av.lg{width:96px;height:96px;font-size:44px;border:3px solid var(--sun)}
+.av.sm{width:40px;height:40px;font-size:19px}
+.av .on{position:absolute;bottom:2px;inset-inline-end:2px;width:13px;height:13px;border-radius:50%;background:var(--ok);border:2px solid var(--surface)}
+.stars{display:inline-flex;align-items:center;gap:3px;font-weight:700;font-size:13px}
+.stars .ic{color:var(--sun);width:15px;height:15px}
+
+/* buttons */
+.btn{height:52px;padding:0 20px;border-radius:16px;background:var(--primary);color:var(--primary-ink);font-weight:700;font-size:16px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .12s,opacity .2s;width:100%}
+.btn:active{transform:scale(.97)}
+.btn.sun{background:var(--sun);color:var(--sun-ink)}
+.btn.ghost{background:var(--surface);color:var(--primary);border:1.5px solid var(--line2)}
+.btn.soft{background:var(--teal-soft);color:var(--primary)}
+.btn.danger{background:var(--danger-soft);color:var(--danger)}
+.btn.wa{background:#1FA855;color:#fff}
+.btn.sm{height:42px;font-size:14px;border-radius:13px;padding:0 14px;width:auto}
+.btn[disabled],.btn[aria-busy=true]{opacity:.6;pointer-events:none}
+.btn[aria-busy=true]::after{content:"";width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-top-color:transparent;animation:spin .7s linear infinite}
+.btns{display:flex;gap:10px}
+.btns .btn{flex:1}
+
+/* forms */
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.lbl{font-size:13.5px;font-weight:700}
+.inp{height:50px;border-radius:14px;border:1.5px solid var(--line2);background:var(--surface);padding:0 14px;outline:0;width:100%;transition:border-color .15s,box-shadow .15s}
+textarea.inp{height:auto;min-height:96px;padding:10px 14px;resize:none;line-height:1.55}
+.inp:focus{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 18%,transparent)}
+.inp.err{border-color:var(--danger)}
+.hint{font-size:12.5px;color:var(--muted)}
+.pw{position:relative}.pw .inp{padding-inline-end:48px}
+.pw button{position:absolute;inset-inline-end:4px;top:3px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.counter{font-size:12px;color:var(--muted);text-align:end}
+.step{height:60px;background:var(--surface);border:1.5px solid var(--line2);border-radius:16px;padding:0 8px;display:flex;align-items:center;justify-content:space-between}
+.step button{width:44px;height:44px;border-radius:50%;background:var(--teal-soft);color:var(--primary);display:flex;align-items:center;justify-content:center}
+.step button:active{transform:scale(.9)}
+.step output{font-family:var(--f-head);font-size:30px;color:var(--primary);line-height:1.2}
+.toggle{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:16px;background:var(--surface);border:1.5px solid var(--line2);width:100%;text-align:start}
+.toggle .sw{width:46px;height:28px;border-radius:14px;background:var(--line2);position:relative;transition:background .2s;flex:none}
+.toggle .sw::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.toggle.on .sw{background:var(--primary)}
+.toggle.on .sw::after{transform:translateX(-18px)}
+.opt{display:flex;align-items:center;gap:10px;padding:12px;border-radius:16px;border:2px solid var(--line);background:var(--surface);flex:1;font-weight:600;font-size:14px;justify-content:center;transition:all .15s;min-height:58px}
+.opt.on{border-color:var(--primary);background:var(--teal-soft)}
+.opt .ic{color:var(--primary)}
+
+/* bottom nav */
+.nav{position:absolute;bottom:0;inset-inline:0;height:calc(var(--nav) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);z-index:20}
+.nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11.5px;font-weight:600;color:var(--muted);position:relative;transition:color .15s}
+.nav a.on{color:var(--primary)}
+.nav a.on::before{content:"";position:absolute;top:0;width:28px;height:3px;border-radius:0 0 3px 3px;background:var(--primary)}
+.nav a .bd{position:absolute;top:8px;inset-inline-start:calc(50% + 6px);min-width:16px;height:16px;border-radius:8px;background:var(--danger);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.nav .plus{transform:translateY(-14px)}
+.nav .plus span{width:54px;height:54px;border-radius:50%;background:var(--sun);color:var(--sun-ink);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 16px rgba(244,165,28,.45);transition:transform .15s}
+.nav .plus:active span{transform:scale(.9)}
+.nav .plus em{font-style:normal;margin-top:-2px}
+
+/* sheet / toast */
+.scrim{position:fixed;inset:0;background:rgba(6,20,22,.5);z-index:60;opacity:0;transition:opacity .2s}
+.scrim.show{opacity:1}
+.sheet{position:fixed;bottom:0;inset-inline:0;max-width:520px;margin:0 auto;background:var(--surface);border-radius:26px 26px 0 0;z-index:61;padding:10px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1);max-height:88dvh;overflow-y:auto}
+.sheet.show{transform:none}
+.sheet .grab{width:44px;height:5px;border-radius:3px;background:var(--line2);margin:0 auto 12px}
+.sheet h3{font-family:var(--f-head);font-weight:400;font-size:22px;margin-bottom:6px}
+.toast{position:fixed;bottom:calc(var(--nav) + 18px + env(safe-area-inset-bottom));inset-inline:16px;max-width:488px;margin:0 auto;background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:14px;z-index:80;font-weight:600;font-size:14px;display:flex;gap:10px;align-items:center;animation:rise .2s both;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.bad{background:var(--danger);color:#fff}
+.toast.ok{background:var(--ok);color:#fff}
+.banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;background:var(--sun-soft);color:var(--sun-ink2);font-size:13.5px;line-height:1.55}
+.banner.teal{background:var(--teal-soft);color:var(--primary)}
+.banner.bad{background:var(--danger-soft);color:var(--danger)}
+.banner.ok{background:var(--ok-soft);color:var(--ok)}
+.banner .ic{margin-top:2px}
+.offline{background:var(--ink);color:var(--bg);font-size:12.5px;text-align:center;padding:4px;font-weight:600}
+
+/* skeleton */
+.skel{background:linear-gradient(90deg,var(--line) 25%,color-mix(in srgb,var(--line) 40%,var(--surface)) 50%,var(--line) 75%);background-size:200% 100%;animation:shimmer 1.3s linear infinite;border-radius:12px}
+.skc{display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+
+/* empty */
+.empty{text-align:center;padding:36px 28px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty svg.art{width:120px;height:96px}
+.empty h3{font-family:var(--f-head);font-weight:400;font-size:22px}
+
+/* detail */
+.dhead{display:flex;gap:12px;align-items:flex-start}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kv>div{background:var(--bg);border-radius:14px;padding:8px 12px}
+.kv small{display:block;color:var(--muted);font-size:12px}
+.kv b{font-size:14.5px}
+.code{display:flex;gap:10px;justify-content:center;direction:ltr;margin:10px 0}
+.code span{width:58px;height:70px;border-radius:16px;background:var(--surface);color:var(--primary);font-family:var(--f-head);font-size:42px;display:flex;align-items:center;justify-content:center;border:2px solid var(--sun);animation:pop .4s both}
+.code span:nth-child(2){animation-delay:.06s}.code span:nth-child(3){animation-delay:.12s}.code span:nth-child(4){animation-delay:.18s}
+.otp{display:flex;gap:10px;justify-content:center;direction:ltr}
+.otp input{width:56px;height:64px;text-align:center;font-family:var(--f-head);font-size:32px;border-radius:16px;border:2px solid var(--line2);background:var(--surface);outline:0;color:var(--primary)}
+.otp input:focus{border-color:var(--primary)}
+.offer{display:flex;flex-direction:column;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.offer.win{border-color:var(--ok);background:var(--ok-soft)}
+.prog{display:flex;align-items:center;gap:0;margin:6px 0 2px}
+.prog i{width:14px;height:14px;border-radius:50%;background:var(--line2);flex:none;position:relative}
+.prog i.on{background:var(--primary)}
+.prog u{flex:1;height:3px;background:var(--line2)}
+.prog u.on{background:var(--primary)}
+.proglbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.gal img,.gal button{width:100%;aspect-ratio:1;object-fit:cover;border-radius:14px;display:block;background:var(--line)}
+.gal .add{border:2px dashed var(--line2);color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:12px;background:none}
+.gal .ph{position:relative}
+.gal .ph img{height:100%}
+.gal .ph button{position:absolute;top:4px;inset-inline-start:4px;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;aspect-ratio:auto;display:flex;align-items:center;justify-content:center}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:90;display:flex;align-items:center;justify-content:center;animation:rise .15s both}
+.lightbox img{max-width:100%;max-height:100%;object-fit:contain}
+.starsel{display:flex;gap:6px;justify-content:center;direction:ltr}
+.starsel button{color:var(--line2);transition:transform .12s,color .12s}
+.starsel button.on{color:var(--sun)}
+.starsel button:active{transform:scale(.85)}
+.starsel .ic{width:40px;height:40px;fill:currentColor}
+.hr{height:1px;background:var(--line);margin:4px 0}
+
+/* wizard */
+.wiz{display:flex;gap:6px;padding:6px 16px 0}
+.wiz i{flex:1;height:5px;border-radius:3px;background:var(--line2);transition:background .3s}
+.wiz i.on{background:var(--primary)}
+.photo-pick{width:168px;height:168px;border-radius:50%;margin:8px auto;border:3px dashed var(--line2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--muted);overflow:hidden;position:relative;background:var(--surface)}
+.photo-pick img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.photo-pick.has{border:4px solid var(--sun)}
+.req li{margin-bottom:6px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px}
+.check input{width:22px;height:22px;accent-color:var(--primary);flex:none;margin-top:2px}
+
+/* misc */
+.splash{position:fixed;inset:0;z-index:100;background:linear-gradient(160deg,var(--deep),var(--primary));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;transition:opacity .35s}
+.splash b{font-family:var(--f-head);font-weight:400;font-size:56px;line-height:1;animation:pop .6s both}
+.splash small{opacity:.85}
+.splash.hide{opacity:0;pointer-events:none}
+.conf{position:fixed;inset:0;pointer-events:none;z-index:95;overflow:hidden}
+.conf i{position:absolute;top:0;width:9px;height:14px;border-radius:2px;animation:fall 1.6s ease-in forwards}
+.tick{width:92px;height:92px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:flex;align-items:center;justify-content:center;margin:0 auto;animation:pop .5s both}
+.tick svg{width:52px;height:52px;fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .25s forwards}
+.ntf{display:flex;gap:12px;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);align-items:flex-start;position:relative}
+.ntf.new{border-color:var(--primary);background:color-mix(in srgb,var(--primary) 7%,var(--surface))}
+.ntf .tile{width:40px;height:40px;border-radius:13px;font-size:20px}
+.menu{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.menu>*{display:flex;align-items:center;gap:12px;padding:14px;width:100%;text-align:start;border-bottom:1px solid var(--line);font-weight:600}
+.menu>*:last-child{border:0}
+.menu .ic:first-child{color:var(--primary)}
+.menu .go{margin-inline-start:auto;color:var(--muted)}
+.ptr{height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;color:var(--muted);font-size:12.5px;transition:height .2s}
+.fade-in{animation:rise .25s both}
+.sticky-cta{position:sticky;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%);z-index:4}
+html.pwr *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+html.pwr .skel{animation:none}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+/* services grid + number input */
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px}
+.sg{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:600;font-size:13px;text-align:center;transition:transform .12s,border-color .15s;line-height:1.35;color:var(--ink)}
+.sg:active{transform:scale(.95)}
+.sg.on{border-color:var(--primary);background:var(--teal-soft)}
+.stin{width:112px;text-align:center;border:0;background:none;font-family:var(--f-head);font-size:30px;color:var(--primary);outline:0;padding:0;-moz-appearance:textfield}
+.stin::-webkit-outer-spin-button,.stin::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.badge.soft{background:var(--teal-soft);color:var(--primary)}
+
+.hbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;position:relative}
+.hb{height:44px;border-radius:14px;background:rgba(255,255,255,.16);color:#fff;font-weight:700;font-size:14.5px;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .12s}
+.hb:active{transform:scale(.96)}
+.hb.sun{background:var(--sun);color:#10272D}
+.hero h2{margin-bottom:0}
+.chip.on .badge.solid{background:var(--sun);color:#10272D}
+
+.g-build{--c:#8A5A2B}.g-craft{--c:#A8327A}.g-agri{--c:#3F8A3A}.g-other{--c:#54696F}
+html.dark .g-build{--c:#D9A06A}html.dark .g-craft{--c:#F08AC8}html.dark .g-agri{--c:#7FD07A}html.dark .g-other{--c:#9AB0B3}
+.search.sm{margin-top:0;height:46px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.search.sm input{color:var(--ink)}
+.suggest{margin:16px;padding:14px;border:1.5px dashed var(--line2);border-radius:var(--r);display:flex;flex-direction:column;gap:8px;text-align:center}
+.svcrow{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.svcrow:last-child{border-bottom:0}
+.svcrow.off{opacity:.55}
+
+.socs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.soc{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:14px;font-weight:700;font-size:13px;background:var(--teal-soft);color:var(--primary)}
+.soc.ig{background:#FCE7F1;color:#B0306A}.soc.fb{background:#E6EEFB;color:#1D5BC2}.soc.wa{background:#E3F6EA;color:#14833F}
+html.dark .soc.ig{background:#3A1F2C;color:#F59AC4}html.dark .soc.fb{background:#1C2840;color:#8AB1F2}html.dark .soc.wa{background:#163222;color:#6FD99A}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="offline" class="offline" hidden>تعذّر الاتصال بالخادم. إن فتحت الملف من معاينة داخل تطبيق، احفظه وافتحه بمتصفح الجوال</div>
+  <main id="view" aria-live="polite"></main>
+  <nav class="nav" id="nav" data-active="home" aria-label="التنقل"></nav>
+</div>
+<div class="splash" id="splash"><b>شغلة</b><small>خدمات وشغل قريب منك</small></div>
+<noscript><p style="padding:24px;text-align:center">يلزم تفعيل JavaScript لتشغيل التطبيق.</p></noscript>
+<script>
+setTimeout(function(){var s=document.getElementById('splash');if(s)s.classList.add('hide');},8000);
+window.addEventListener('load',function(){setTimeout(function(){try{var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Lalezar&display=swap';document.head.appendChild(l);}catch(e){}},1200);});
+window.addEventListener('unhandledrejection',function(e){try{console.error(e.reason)}catch(_){}});
+</script>
+<script>
+'use strict';
+/* ====== config ====== */
+const CFG = {
+  url: 'https://jlkrwstgdhcjrahgrpts.supabase.co',
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impsa3J3c3RnZGhjanJhaGdycHRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyOTgzMjUsImV4cCI6MjEwODg3NDMyNX0.HBz9TDF5fZ_UgNH04ARHGgIps9j-WE1LKeSE2yhdG0Y'
+};
+const APP_URL = 'https://shughla-app.github.io/';
+const SOCIAL = {
+  ig: 'https://www.instagram.com/shughla.gaza/',
+  fb: 'https://www.facebook.com/profile.php?id=61583762405465',
+  wa: 'https://wa.me/970569190006?text=' + encodeURIComponent('مرحبا، عندي سؤال عن تطبيق شغلة')
+};
+const AREAS = ['الرمال','تل الهوى','الشيخ رضوان','جباليا','بيت لاهيا','النصيرات','البريج','المغازي','دير البلح','الزوايدة','المواصي','خانيونس','رفح','عن بعد'];
+const GROUPS = {
+  home: 'البيت والصيانة', build: 'بناء وإيواء', tech: 'تقنية وطاقة', health: 'صحة وعلاج', transport: 'مواصلات ونقل',
+  learn: 'تعليم', personal: 'عناية ورعاية', craft: 'حرف يدوية وخياطة', food: 'طعام ومناسبات', agri: 'زراعة وحيوانات',
+  remote: 'عن بعد', other: 'أخرى'
+};
+const EMOJI = {
+  physio: '💪', massage: '💆', hijama: '💧', nurse: '💉', plumb: '🔧', elec: '💡', wood: '🔨', paint: '🎨', appl: '🔌', clean: '✨',
+  phone: '📱', solar: '☀️', net: '📶', taxi: '🚕', deliv: '🛵', move: '🚚', mech: '🚗', tutor: '📚', quran: '📖',
+  sew: '👗', barber: '✂️', beauty: '💄', photo: '📷', cook: '🍲', design: '🖌️', code: '💻', trans: '📝'
+};
+const EXAMPLES = {
+  plumb: 'مثال: تصليح تسريب مياه تحت المجلى', elec: 'مثال: تمديد نقطة كهرباء للمطبخ', physio: 'مثال: جلسات علاج طبيعي لآلام الظهر',
+  massage: 'مثال: جلسة مساج علاجي للرقبة والكتف', hijama: 'مثال: حجامة في البيت بموعد مسبق', phone: 'مثال: تغيير شاشة جوال',
+  solar: 'مثال: فحص بطاريات الطاقة الشمسية', taxi: 'مثال: مشوار من النصيرات إلى دير البلح', deliv: 'مثال: توصيل طلب من السوق للبيت',
+  move: 'مثال: نقل غرفة نوم إلى بيت جديد', tutor: 'مثال: مدرس رياضيات للصف التاسع', sew: 'مثال: تقصير وتعديل ثلاثة فساتين',
+  cook: 'مثال: طبخ وجبة لعشرة أشخاص', clean: 'مثال: تنظيف شقة بعد الترميم'
+};
+
+/* ====== utils ====== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('sh_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('sh_' + k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem('sh_' + k); } catch (e) {} }
+};
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const buzz = (n = 12) => { try { if (navigator.vibrate && !document.documentElement.classList.contains('pwr')) navigator.vibrate(n); } catch (e) {} };
+const IMG_RE = /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/;
+const safeImg = s => (typeof s === 'string' && IMG_RE.test(s)) ? s : null;
+const pluralize = (n, one, two, few, many) => n === 1 ? one : n === 2 ? two : (n >= 3 && n <= 10) ? n + ' ' + few : n + ' ' + many;
+function ago(iso) {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return 'الآن';
+  const m = Math.floor(s / 60);
+  if (m < 60) return 'قبل ' + pluralize(m, 'دقيقة', 'دقيقتين', 'دقائق', 'دقيقة');
+  const h = Math.floor(m / 60);
+  if (h < 24) return 'قبل ' + pluralize(h, 'ساعة', 'ساعتين', 'ساعات', 'ساعة');
+  const d = Math.floor(h / 24);
+  if (d < 30) return 'قبل ' + pluralize(d, 'يوم', 'يومين', 'أيام', 'يوم');
+  return 'قبل مدة';
+}
+function money(n) { return n + ' ₪'; }
+function budget(j) {
+  const a = j.bmin, b = j.bmax;
+  if (a != null && b != null) return a === b ? money(a) : a + ' – ' + money(b);
+  if (b != null) return 'حتى ' + money(b);
+  if (a != null) return 'من ' + money(a);
+  return 'حسب العروض';
+}
+const PAY = { cash: 'كاش عند الإنجاز', wallet: 'محفظة إلكترونية', any: 'أي طريقة' };
+function waLink(phone, text) {
+  const d = String(phone || '').replace(/\D/g, '').replace(/^0/, '970');
+  return 'https://wa.me/' + d + (text ? '?text=' + encodeURIComponent(text) : '');
+}
+function hue(str) { let h = 0; for (const c of String(str)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
+function initial(name) { return esc(Array.from(String(name || '؟').replace(/^(م\.|د\.|أبو|ابو)\s*/, '').trim() || '؟')[0] || '؟'); }
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+/* ====== state ====== */
+const DEFAULT_SERVICES = [{"slug": "physio", "name": "علاج طبيعي", "grp": "health", "emoji": "💪"}, {"slug": "massage", "name": "مساج علاجي", "grp": "health", "emoji": "💆"}, {"slug": "hijama", "name": "حجامة", "grp": "health", "emoji": "💧"}, {"slug": "nurse", "name": "تمريض منزلي", "grp": "health", "emoji": "💉"}, {"slug": "plumb", "name": "سباكة", "grp": "home", "emoji": "🔧"}, {"slug": "elec", "name": "كهرباء", "grp": "home", "emoji": "💡"}, {"slug": "wood", "name": "نجارة وألمنيوم", "grp": "home", "emoji": "🔨"}, {"slug": "paint", "name": "دهان وبلاط", "grp": "home", "emoji": "🎨"}, {"slug": "appl", "name": "أجهزة منزلية", "grp": "home", "emoji": "🔌"}, {"slug": "clean", "name": "تنظيف منازل", "grp": "home", "emoji": "✨"}, {"slug": "phone", "name": "جوالات وكمبيوتر", "grp": "tech", "emoji": "📱"}, {"slug": "solar", "name": "طاقة شمسية", "grp": "tech", "emoji": "☀️"}, {"slug": "net", "name": "إنترنت وشبكات", "grp": "tech", "emoji": "📶"}, {"slug": "taxi", "name": "سيارة على الخط", "grp": "transport", "emoji": "🚕"}, {"slug": "deliv", "name": "توصيل طلبات", "grp": "transport", "emoji": "🛵"}, {"slug": "move", "name": "نقل أثاث", "grp": "transport", "emoji": "🚚"}, {"slug": "mech", "name": "ميكانيكا سيارات", "grp": "transport", "emoji": "🚗"}, {"slug": "tutor", "name": "دروس خصوصية", "grp": "learn", "emoji": "📚"}, {"slug": "quran", "name": "تحفيظ قرآن", "grp": "learn", "emoji": "📖"}, {"slug": "sew", "name": "خياطة", "grp": "craft", "emoji": "👗"}, {"slug": "barber", "name": "حلاقة", "grp": "personal", "emoji": "✂️"}, {"slug": "beauty", "name": "تجميل نسائي", "grp": "personal", "emoji": "💄"}, {"slug": "photo", "name": "تصوير", "grp": "personal", "emoji": "📷"}, {"slug": "cook", "name": "طبخ منزلي", "grp": "food", "emoji": "🍲"}, {"slug": "design", "name": "تصميم", "grp": "remote", "emoji": "🖌️"}, {"slug": "code", "name": "برمجة", "grp": "remote", "emoji": "💻"}, {"slug": "trans", "name": "ترجمة وكتابة", "grp": "remote", "emoji": "📝"}, {"slug": "ac", "name": "تبريد وتكييف", "grp": "home", "emoji": "❄️"}, {"slug": "weld", "name": "حدادة ولحام", "grp": "home", "emoji": "🔥"}, {"slug": "rugs", "name": "تنظيف سجاد وكنب", "grp": "home", "emoji": "🧽"}, {"slug": "pest", "name": "مكافحة حشرات", "grp": "home", "emoji": "🪳"}, {"slug": "tent", "name": "نصب خيام", "grp": "build", "emoji": "⛺"}, {"slug": "roof", "name": "شوادر وعزل أسطح", "grp": "build", "emoji": "☔"}, {"slug": "build", "name": "بناء وترميم", "grp": "build", "emoji": "🧱"}, {"slug": "rubble", "name": "إزالة ركام", "grp": "build", "emoji": "🏗️"}, {"slug": "sewer", "name": "صرف صحي وحفر", "grp": "build", "emoji": "🚽"}, {"slug": "gen", "name": "صيانة مولدات", "grp": "tech", "emoji": "⚙️"}, {"slug": "batt", "name": "بطاريات وإنفرترات", "grp": "tech", "emoji": "🔋"}, {"slug": "cctv", "name": "كاميرات مراقبة", "grp": "tech", "emoji": "📹"}, {"slug": "water", "name": "نقل مياه", "grp": "transport", "emoji": "🚰"}, {"slug": "cargo", "name": "نقل بضائع", "grp": "transport", "emoji": "📦"}, {"slug": "lang", "name": "تعليم لغات", "grp": "learn", "emoji": "🗣️"}, {"slug": "course", "name": "دورات وتدريب", "grp": "learn", "emoji": "🎓"}, {"slug": "babysit", "name": "جليسة أطفال", "grp": "personal", "emoji": "🧸"}, {"slug": "elder", "name": "رعاية مسنين", "grp": "personal", "emoji": "🧓"}, {"slug": "henna", "name": "حناء ونقش", "grp": "personal", "emoji": "🌿"}, {"slug": "embroid", "name": "تطريز", "grp": "craft", "emoji": "🪡"}, {"slug": "knit", "name": "صوف وكروشيه", "grp": "craft", "emoji": "🧶"}, {"slug": "shoe", "name": "تصليح أحذية وشنط", "grp": "craft", "emoji": "👞"}, {"slug": "hand", "name": "أشغال يدوية وهدايا", "grp": "craft", "emoji": "🎁"}, {"slug": "sweets", "name": "حلويات ومعجنات", "grp": "food", "emoji": "🍰"}, {"slug": "feast", "name": "طبخ ولائم ومناسبات", "grp": "food", "emoji": "🍛"}, {"slug": "bake", "name": "خبز وفرن", "grp": "food", "emoji": "🥖"}, {"slug": "event", "name": "تجهيز مناسبات", "grp": "food", "emoji": "🎉"}, {"slug": "garden", "name": "زراعة وحدائق", "grp": "agri", "emoji": "🌱"}, {"slug": "animal", "name": "رعاية حيوانات ودواجن", "grp": "agri", "emoji": "🐔"}, {"slug": "mkt", "name": "تسويق إلكتروني", "grp": "remote", "emoji": "📣"}, {"slug": "video", "name": "مونتاج فيديو", "grp": "remote", "emoji": "🎬"}, {"slug": "data", "name": "إدخال بيانات", "grp": "remote", "emoji": "⌨️"}, {"slug": "other", "name": "خدمة أخرى", "grp": "other", "emoji": "➕"}];
+const S = {
+  token: LS.get('t', null), me: LS.get('me', null),
+  services: LS.get('svc', DEFAULT_SERVICES), stats: LS.get('stats', null),
+  unread: 0, online: navigator.onLine !== false
+};
+const svcMap = () => Object.fromEntries(S.services.map(s => [s.slug, s]));
+function svc(slug) { return svcMap()[slug] || { slug, name: 'خدمة', grp: 'other' }; }
+function emo(slug) { return EMOJI[slug] || (svcMap()[slug] || {}).emoji || '🛠️'; }
+const activeSvcs = () => S.services.filter(s => s.active !== false);
+function svcGroups(list) {
+  const known = Object.keys(GROUPS), out = {};
+  list.forEach(s => { const g = known.includes(s.grp) ? s.grp : 'other'; (out[g] = out[g] || []).push(s); });
+  return known.filter(g => out[g]).map(g => ({ g, name: GROUPS[g], items: out[g] }));
+}
+const normAr = t => String(t || '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\u064B-\u0652]/g, '').toLowerCase();
+/* grouped service grid with live search; tile(s) returns the html of one tile */
+let PICKQ = '';
+function svcPicker(tile, extra) {
+  const groups = svcGroups(activeSvcs()).map(x => { const tiles = x.items.map(tile).join(''); return tiles ? `<div class="svg" data-g="${x.g}"><div class="sec" style="margin-top:12px"><b>${x.name}</b></div><div class="sgrid">${tiles}</div></div>` : ''; }).join('');
+  return `<div class="wrap" style="margin-top:10px"><div class="search sm"><span>${ic('search', 's')}</span><input type="search" data-svcq value="${esc(PICKQ)}" placeholder="ابحث عن خدمة: تطريز، خيام، تنظيف…" aria-label="ابحث عن خدمة"></div></div><div data-svclist>${groups}</div><div class="empty sm" data-svcnone hidden style="padding:18px 16px"><p class="muted">ما لقينا هذه الخدمة في القائمة.</p></div>${extra || ''}`;
+}
+function svcPickerMount(root) {
+  const q = $('[data-svcq]', root || document); if (!q) return;
+  const apply = () => {
+    PICKQ = q.value; const t = normAr(q.value.trim()); let any = false;
+    $$('[data-svclist] .svg').forEach(grp => {
+      let n = 0;
+      $$('.sg', grp).forEach(b => { const ok = !t || normAr(b.textContent).includes(t) || b.dataset.v === 'other'; b.hidden = !ok; if (ok && b.dataset.v !== 'other') n++; });
+      grp.hidden = !$$('.sg', grp).some(b => !b.hidden); if (n) any = true;
+    });
+    const none = $('[data-svcnone]'); if (none) none.hidden = any || !t;
+  };
+  q.addEventListener('input', apply);
+  if (PICKQ) apply();
+}
+function tileHtml(slug, big) { const s = svc(slug); return `<span class="tile g-${esc(s.grp)}${big ? ' lg' : ''}" aria-hidden="true">${emo(slug)}</span>`; }
+function saveMe(me) { S.me = me; LS.set('me', me); if (me) S.unread = me.unread || 0; updateBadges(); }
+function setSession(token, me) { S.token = token; LS.set('t', token); saveMe(me); }
+function clearSession() { S.token = null; S.me = null; S.unread = 0; LS.del('t'); LS.del('me'); updateBadges(); }
+const isWorker = () => S.me && S.me.worker && S.me.worker.status === 'approved';
+
+/* ====== API ====== */
+const ERR = {
+  net: 'تعذّر الاتصال. تحقق من الإنترنت وحاول مرة أخرى',
+  bad_phone: 'رقم الجوال غير صحيح — يبدأ بـ 059 أو 056',
+  weak_pass: 'كلمة السر قصيرة — 6 خانات على الأقل',
+  bad_name: 'اكتب اسمك (حرفان على الأقل)',
+  phone_taken: 'هذا الرقم مسجّل من قبل — جرّب تسجيل الدخول',
+  busy: 'ضغط كبير الآن، حاول بعد دقيقة',
+  bad_login: 'رقم الجوال أو كلمة السر غير صحيحة',
+  locked: 'محاولات خاطئة كثيرة — انتظر قليلا ثم حاول',
+  banned: 'تم إيقاف هذا الحساب',
+  auth_required: 'سجّل الدخول للمتابعة',
+  forbidden: 'هذا الإجراء غير مسموح لك',
+  not_found: 'الصفحة غير موجودة أو تم حذفها',
+  job_closed: 'هذا الطلب لم يعد متاحا',
+  offer_closed: 'لا يمكن تعديل هذا العرض الآن',
+  not_approved: 'حسابك كعامل لم يُعتمد بعد',
+  own_job: 'لا يمكنك تقديم عرض على طلبك',
+  demo_job: 'هذا طلب تجريبي للتوضيح فقط',
+  wrong_service: 'هذا الطلب خارج خدماتك',
+  bad_price: 'اكتب سعرا صحيحا',
+  job_full: 'وصل الطلب لأقصى عدد من العروض',
+  rate_limit: 'وصلت للحد اليومي، حاول لاحقا',
+  too_many_open: 'لديك طلبات مفتوحة كثيرة، أنهِ بعضها أولا',
+  bad_title: 'عنوان الطلب 5 أحرف على الأقل',
+  bad_area: 'اختر المنطقة',
+  bad_budget: 'الحد الأدنى أكبر من الأعلى',
+  bad_service: 'اختر خدمة صحيحة',
+  need_photo: 'أضف صورتك الشخصية أولا',
+  need_service: 'اختر خدمة واحدة على الأقل',
+  need_bio: 'اكتب نبذة عن خبرتك (20 حرفا على الأقل)',
+  need_exp: 'حدّد سنوات الخبرة',
+  need_hours: 'حدّد أوقات عملك',
+  need_area: 'حدّد منطقتك',
+  need_cert: 'اكتب مؤهلك أو شهادتك للخدمات الصحية',
+  too_many_services: 'الحد الأقصى 5 خدمات',
+  need_other: 'اكتب اسم مهنتك التي لم تجدها في القائمة',
+  exists: 'هذه الخدمة موجودة مسبقا',
+  too_many_photos: 'الحد الأقصى 6 صور',
+  bad_image: 'الصورة غير مناسبة، جرّب صورة أخرى',
+  suspended: 'حسابك كعامل موقوف حاليا',
+  already_reviewed: 'قيّمت هذا الطلب من قبل',
+  already_claimed: 'تم تعيين مالك للتطبيق مسبقا',
+  bad_secret: 'الرمز غير صحيح',
+  need_note: 'اكتب سبب الرفض ليصل للعامل',
+  worker_unavailable: 'هذا العامل لم يعد متاحا',
+  code_locked: 'توقفت المحاولات. تواصل مع الزبون لإعادة فتح الطلب',
+  bad_text: 'النص طويل أو غير صالح',
+  bad_exp: 'سنوات الخبرة غير صحيحة'
+};
+function errMsg(e) { return (e && e.msg) || ERR[e && e.code] || 'حدث خطأ غير متوقع، حاول مرة أخرى'; }
+function mkErr(code, extra) { const e = new Error(code); e.code = code; e.msg = ERR[code]; return Object.assign(e, extra || {}); }
+const NOAUTH = { signup: 1, login: 1 };
+async function rpc(fn, args, opt) {
+  const body = Object.assign({}, args || {});
+  if (!NOAUTH[fn] && S.token) body.p_t = S.token;
+  const ctl = new AbortController();
+  const to = setTimeout(() => ctl.abort(), (opt && opt.timeout) || 15000);
+  let res, data = null;
+  try {
+    res = await fetch(CFG.url + '/rest/v1/rpc/' + fn, {
+      method: 'POST', signal: ctl.signal,
+      headers: { 'Content-Type': 'application/json', apikey: CFG.key, Authorization: 'Bearer ' + CFG.key },
+      body: JSON.stringify(body)
+    });
+    S.online = true;
+  } catch (e) { S.online = false; updateOffline(); throw mkErr('net'); }
+  finally { clearTimeout(to); }
+  updateOffline();
+  try { data = await res.json(); } catch (e) { data = null; }
+  if (!res.ok) {
+    const code = (data && (data.message || data.code)) || ('http' + res.status);
+    if (code === 'auth_required' && S.token) { clearSession(); }
+    throw mkErr(code);
+  }
+  if (data && data.error) {
+    const e = mkErr(data.error, { left: data.left });
+    if (data.error === 'bad_code') e.msg = 'الرمز غير صحيح — بقي لك ' + data.left + (data.left === 1 ? ' محاولة' : ' محاولات');
+    throw e;
+  }
+  return data;
+}
+function updateOffline() {
+  const el = $('#offline'); if (!el) return;
+  el.hidden = S.online;
+}
+window.addEventListener('online', () => { S.online = true; updateOffline(); });
+window.addEventListener('offline', () => { S.online = false; updateOffline(); });
+
+/* ====== tiny event bus for actions ====== */
+const ACT = {};
+document.addEventListener('click', e => {
+  /* hash links: navigate via location.hash so they also work inside sandboxed/srcdoc previews (where relative '#/x' links resolve against the parent URL and blank the page) */
+  const a = e.target.closest('a[href^="#"]');
+  if (a && !a.dataset.a && !e.defaultPrevented && e.button === 0 && !e.ctrlKey && !e.metaKey) { e.preventDefault(); const h = a.getAttribute('href'); if (location.hash === h) { if (typeof render === 'function') render(); } else location.hash = h; return; }
+  const t = e.target.closest('[data-a]');
+  if (!t) return;
+  const fn = ACT[t.dataset.a];
+  if (fn) { e.preventDefault(); fn(t, e); }
+});
+async function busy(btn, fn) {
+  if (!btn || btn.getAttribute('aria-busy') === 'true') return;
+  btn.setAttribute('aria-busy', 'true');
+  try { return await fn(); } finally { btn.removeAttribute('aria-busy'); }
+}
+
+/* ====== icons ====== */
+const ICONS = {
+  home: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>', minus: '<path d="M5 12h14"/>',
+  list: '<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h4"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
+  bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  back: '<path d="M5 12h14M13 6l6 6-6 6"/>', chev: '<path d="M15 6l-6 6 6 6"/>',
+  close: '<path d="M18 6L6 18M6 6l12 12"/>', check: '<path d="M20 6L9 17l-5-5"/>',
+  star: '<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/>',
+  phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
+  ig: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/>',
+  fb: '<path d="M15 8h-2a2 2 0 0 0-2 2v11M8 13h6"/><rect x="3" y="3" width="18" height="18" rx="5"/>',
+  msg: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',
+  flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  pin: '<path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  camera: '<path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/>',
+  shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5L16 9.5"/>',
+  wallet: '<path d="M20 12V8H6a2 2 0 0 1 0-4h12v4"/><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/>',
+  cash: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff: '<path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 10 7 10 7a17 17 0 0 1-3.2 4M6.5 6.5A17 17 0 0 0 2 12s4 7 10 7a9.8 9.8 0 0 0 4.2-1"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/>',
+  alert: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.6 3-6 7-6s7 2.4 7 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.4c2.4.7 4 2.5 4 5.6"/>',
+  bag: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+  bolt: '<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  dots: '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+  cal: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  heart: '<path d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'
+};
+function ic(name, cls) { return `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${name}"/></svg>`; }
+function sprite() {
+  return '<svg width="0" height="0" style="position:absolute" aria-hidden="true">' +
+    Object.keys(ICONS).map(k => `<symbol id="i-${k}" viewBox="0 0 24 24">${ICONS[k]}</symbol>`).join('') + '</svg>';
+}
+const starsRow = (avg, count) => (count > 0)
+  ? `<span class="stars">${ic('star', 'fill')}${Number(avg).toFixed(1)} <span class="muted xs">(${count})</span></span>`
+  : `<span class="badge gray">جديد</span>`;
+
+/* ====== toast ====== */
+let toastT;
+function toast(msg, kind) {
+  const old = $('.toast'); if (old) old.remove();
+  const el = document.createElement('div');
+  el.className = 'toast' + (kind ? ' ' + kind : '');
+  el.setAttribute('role', 'status');
+  el.innerHTML = (kind === 'ok' ? ic('check', 's') : kind === 'bad' ? ic('alert', 's') : '') + `<span>${esc(msg)}</span>`;
+  document.body.appendChild(el);
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.remove(), 3200);
+}
+const fail = e => { toast(errMsg(e), 'bad'); buzz([20, 40, 20]); };
+
+/* ====== sheets ====== */
+let sheetEl = null, scrimEl = null, sheetClose = null;
+function openSheet(html, onMount) {
+  closeSheet(true);
+  scrimEl = document.createElement('div'); scrimEl.className = 'scrim';
+  sheetEl = document.createElement('div'); sheetEl.className = 'sheet'; sheetEl.setAttribute('role', 'dialog'); sheetEl.setAttribute('aria-modal', 'true');
+  sheetEl.innerHTML = '<div class="grab"></div>' + html;
+  document.body.append(scrimEl, sheetEl);
+  scrimEl.onclick = () => closeSheet();
+  requestAnimationFrame(() => { scrimEl.classList.add('show'); sheetEl.classList.add('show'); });
+  if (onMount) onMount(sheetEl);
+  return sheetEl;
+}
+function closeSheet(instant) {
+  const s = sheetEl, c = scrimEl; sheetEl = scrimEl = null;
+  if (sheetClose) { const f = sheetClose; sheetClose = null; f(false); }
+  if (!s) return;
+  if (instant) { s.remove(); c.remove(); return; }
+  s.classList.remove('show'); c.classList.remove('show');
+  setTimeout(() => { s.remove(); c.remove(); }, 260);
+}
+function confirmSheet(o) {
+  return new Promise(res => {
+    openSheet(`<h3>${esc(o.title)}</h3><p class="muted" style="margin-bottom:14px">${esc(o.text || '')}</p>
+      <div class="btns"><button class="btn ${o.danger ? 'danger' : ''}" id="cs-ok">${esc(o.ok || 'تأكيد')}</button><button class="btn ghost" id="cs-no">${esc(o.no || 'رجوع')}</button></div>`,
+      el => {
+        $('#cs-ok', el).onclick = () => { sheetClose = null; closeSheet(); res(true); };
+        $('#cs-no', el).onclick = () => { closeSheet(); };
+      });
+    sheetClose = res;
+  });
+}
+function promptSheet(o) {
+  return new Promise(res => {
+    openSheet(`<h3>${esc(o.title)}</h3>${o.text ? `<p class="muted" style="margin-bottom:10px">${esc(o.text)}</p>` : ''}
+      <div class="field"><textarea class="inp" id="ps-t" maxlength="${o.max || 300}" placeholder="${esc(o.ph || '')}"></textarea></div>
+      <div class="btns" style="margin-top:12px"><button class="btn ${o.danger ? 'danger' : ''}" id="ps-ok">${esc(o.ok || 'إرسال')}</button><button class="btn ghost" id="ps-no">إلغاء</button></div>`,
+      el => {
+        setTimeout(() => $('#ps-t', el).focus(), 300);
+        $('#ps-ok', el).onclick = () => { const v = $('#ps-t', el).value.trim(); sheetClose = null; closeSheet(); res(v); };
+        $('#ps-no', el).onclick = () => closeSheet();
+      });
+    sheetClose = res;
+  });
+}
+function lightbox(src) {
+  const el = document.createElement('div'); el.className = 'lightbox';
+  el.innerHTML = `<img alt="" src="${esc(src)}">`;
+  el.onclick = () => el.remove(); document.body.appendChild(el);
+}
+function confetti() {
+  if (document.documentElement.classList.contains('pwr')) return;
+  const el = document.createElement('div'); el.className = 'conf';
+  const cols = ['#F4A51C', '#0A6A72', '#1E8E5A', '#C2412D', '#3D4FB5'];
+  let h = '';
+  for (let i = 0; i < 34; i++) h += `<i style="left:${Math.random() * 100}%;background:${cols[i % 5]};--dx:${Math.round(Math.random() * 120 - 60)}px;--rot:${Math.round(Math.random() * 720)}deg;animation-delay:${(Math.random() * .4).toFixed(2)}s"></i>`;
+  el.innerHTML = h; document.body.appendChild(el); setTimeout(() => el.remove(), 2400);
+}
+
+/* ====== fragments ====== */
+function skeletons(n, kind) {
+  let h = '';
+  for (let i = 0; i < n; i++) h += kind === 'w'
+    ? '<div class="skc"><div class="skel" style="width:56px;height:56px;border-radius:50%"></div><div style="flex:1"><div class="skel" style="height:16px;width:60%"></div><div class="skel" style="height:12px;width:40%;margin-top:8px"></div></div></div>'
+    : '<div class="skc"><div class="skel" style="width:46px;height:46px;border-radius:15px"></div><div style="flex:1"><div class="skel" style="height:16px;width:75%"></div><div class="skel" style="height:12px;width:50%;margin-top:8px"></div><div class="skel" style="height:18px;width:30%;margin-top:10px"></div></div></div>';
+  return `<div class="list" aria-busy="true">${h}</div>`;
+}
+const ART = '<svg class="art" viewBox="0 0 120 96" fill="none" aria-hidden="true"><rect x="14" y="30" width="92" height="56" rx="14" fill="var(--teal-soft)"/><rect x="28" y="14" width="64" height="40" rx="12" fill="var(--sun-soft)" stroke="var(--sun)" stroke-width="2"/><path d="M44 34h32M44 44h20" stroke="var(--sun)" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="64" r="9" fill="var(--primary)"/><path d="M55.5 64l3 3 6-6" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function empty(title, text, btn) {
+  return `<div class="empty fade-in">${ART}<h3>${esc(title)}</h3><p class="muted">${esc(text || '')}</p>${btn || ''}</div>`;
+}
+function errorBox(e, retryAct) {
+  return `<div class="empty">${ic('alert', 'l')}<h3>${e && e.code === 'net' ? 'لا يوجد اتصال' : 'صار خطأ'}</h3><p class="muted">${esc(errMsg(e))}</p>
+    <button class="btn soft sm" data-a="${retryAct || 'reload'}">${ic('refresh', 's')} إعادة المحاولة</button></div>`;
+}
+function avatar(name, thumb, cls, on) {
+  const im = safeImg(thumb);
+  return `<span class="av ${cls || ''}" style="${im ? '' : `background:hsl(${hue(name)} 42% 34%)`}">${im ? `<img alt="" src="${im}" loading="lazy">` : initial(name)}${on ? '<span class="on" title="متاح"></span>' : ''}</span>`;
+}
+function jobCard(j) {
+  const flags = [];
+  if (j.urgent) flags.push(`<span class="badge sun">${ic('bolt', 's')} مستعجل</span>`);
+  if (j.invited) flags.push('<span class="badge solid">دعوة لك</span>');
+  if (j.mine) flags.push('<span class="badge gray">طلبك</span>');
+  if (j.demo) flags.push('<span class="badge gray">نموذج</span>');
+  return `<a class="jcard" href="#/job/${esc(j.id)}">${tileHtml(j.service)}
+    <div class="sp"><div class="jtitle">${esc(j.title)}</div>
+      <div class="jmeta"><span>${ic('pin', 's')}${esc(j.area)}</span><span>${ic('clock', 's')}${ago(j.at)}</span><span>${ic('cal', 's')}${esc(j.when)}</span></div>
+      <div class="jfoot"><span class="price">${esc(budget(j))}</span>${j.offers > 0 ? `<span class="badge">${j.offers} ${j.offers === 1 ? 'عرض' : 'عروض'}</span>` : ''}${flags.join('')}</div>
+    </div></a>`;
+}
+function workerCard(w) {
+  const names = (w.services || []).slice(0, 2).map(s => `<span class="badge">${emo(s)} ${esc(s === 'other' ? (w.other || 'أخرى') : svc(s).name)}</span>`).join('');
+  return `<a class="wcard" href="#/worker/${esc(w.id)}">${avatar(w.name, w.thumb, '', w.available)}
+    <div class="sp"><div class="row"><b>${esc(w.name)}</b>${w.demo ? '<span class="badge gray">نموذج</span>' : ''}</div>
+      <div class="row" style="flex-wrap:wrap;gap:6px;margin:3px 0">${names}</div>
+      <div class="row sm muted" style="gap:10px">${starsRow(w.rating, w.count)}<span>${ic('pin', 's')} ${esc(w.area || '')}</span>${w.exp != null ? `<span>${w.exp} سنة خبرة</span>` : ''}</div>
+    </div></a>`;
+}
+
+/* ====== shell: nav, offline bar, theme ====== */
+const NAV = [
+  ['home', '/', 'الرئيسية', 'home'], ['services', '/services', 'الخدمات', 'grid'], ['post', '/post', 'طلب جديد', 'plus'],
+  ['orders', '/orders', 'طلباتي', 'list'], ['account', '/account', 'حسابي', 'user']
+];
+function navHtml(active) {
+  return NAV.map(n => n[0] === 'post'
+    ? `<a class="plus" href="#${n[1]}" aria-label="${n[2]}"><span>${ic('plus', 'l')}</span><em class="xs b" style="color:var(--muted)">${n[2]}</em></a>`
+    : `<a href="#${n[1]}" class="${active === n[0] ? 'on' : ''}">${ic(n[3])}<span>${n[2]}</span>${n[0] === 'account' && S.unread > 0 ? `<i class="bd">${S.unread > 9 ? '9+' : S.unread}</i>` : ''}</a>`).join('');
+}
+function updateBadges() {
+  const dot = $('#bell-dot'); if (dot) { dot.textContent = S.unread > 9 ? '9+' : S.unread; dot.hidden = !(S.unread > 0); }
+  const n = $('#nav'); if (n && !n.hidden) n.innerHTML = navHtml(n.dataset.active);
+}
+function applyTheme() {
+  const dark = LS.get('dark', null);
+  const isDark = dark == null ? (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) : dark;
+  document.documentElement.classList.toggle('dark', !!isDark);
+  document.documentElement.classList.toggle('pwr', !!isDark);
+  const m = $('meta[name=theme-color]'); if (m) m.content = isDark ? '#0A1214' : '#063F46';
+}
+function topbar(title, o) {
+  o = o || {};
+  return `<div class="top">${o.back === false ? '' : `<button class="ibtn" data-a="back" aria-label="رجوع">${ic('back')}</button>`}<h1>${esc(title)}</h1>${o.right || ''}</div>`;
+}
+ACT.back = () => { if (history.length > 1 && NAVDEPTH > 0) history.back(); else location.hash = '#/'; };
+ACT.reload = () => render();
+
+/* ====== social links ====== */
+function socialHtml(title) {
+  const a = (href, icon, label, cls) => `<a class="soc ${cls}" href="${href}" target="_blank" rel="noopener">${ic(icon)}<span>${label}</span></a>`;
+  return `<div class="card gap"><b>${title || 'تابعنا وتواصل معنا'}</b><div class="socs">${a(SOCIAL.ig, 'ig', 'إنستغرام', 'ig')}${a(SOCIAL.fb, 'fb', 'فيسبوك', 'fb')}${a(SOCIAL.wa, 'msg', 'واتساب', 'wa')}</div><div class="xs muted">جديد الخدمات، نصائح، وعروض العمّال أولا بأول.</div></div>`;
+}
+
+/* ====== router ====== */
+let NAVDEPTH = 0;
+const STACK = [];
+const ROUTES = [];
+const SCROLL = {};
+let renderTok = 0, curHash = '';
+function route(re, fn, opts) { ROUTES.push({ re, fn, opts: opts || {} }); }
+function go(path) { location.hash = '#' + path; }
+function replace(path) { try { location.replace(location.href.split('#')[0] + '#' + path); } catch (e) { location.hash = '#' + path; } }
+function loginTo(next) { replace('/login?next=' + encodeURIComponent(next || (location.hash.slice(1) || '/'))); }
+
+function paint(res, tok) {
+  if (tok !== renderTok) return;
+  const v = $('#view');
+  v.className = res.nonav ? 'nonav' : '';
+  v.innerHTML = `<div class="page">${res.html}</div>`;
+  const nav = $('#nav');
+  nav.hidden = !!res.nonav;
+  if (!res.nonav) { nav.dataset.active = res.nav || ''; nav.innerHTML = navHtml(res.nav || ''); }
+  updateBadges();
+  if (res.mount) { try { res.mount(v); } catch (e) { console.error(e); } }
+}
+
+async function render() {
+  const tok = ++renderTok;
+  const raw = (location.hash || '#/').slice(1) || '/';
+  const qi = raw.indexOf('?');
+  const path = qi < 0 ? raw : raw.slice(0, qi);
+  const q = Object.fromEntries(new URLSearchParams(qi < 0 ? '' : raw.slice(qi + 1)));
+  const v = $('#view');
+  if (curHash) SCROLL[curHash] = v.scrollTop;
+  // stack for back detection
+  if (STACK.length > 1 && STACK[STACK.length - 2] === raw) { STACK.pop(); NAVDEPTH = Math.max(0, NAVDEPTH - 1); }
+  else if (STACK[STACK.length - 1] !== raw) { STACK.push(raw); NAVDEPTH = STACK.length - 1; }
+  const wasBack = SCROLL[raw] != null && STACK[STACK.length - 1] === raw && NAVDEPTH >= 0;
+  curHash = raw;
+  closeSheet(true);
+  for (const r of ROUTES) {
+    const m = path.match(r.re);
+    if (!m) continue;
+    if (r.opts.auth && !S.token) { loginTo(raw); return; }
+    const ctx = { params: m.slice(1), q, tok, path, raw, paint: res => paint(res, tok) };
+    let res;
+    try { res = await r.fn(ctx); }
+    catch (e) {
+      console.error(e);
+      res = { html: topbar('') + errorBox(e), nav: r.opts.nav || '' };
+    }
+    if (tok !== renderTok || !res) return;
+    paint(res, tok);
+    v.scrollTop = (r.opts.keepScroll && wasBack) ? (SCROLL[raw] || 0) : 0;
+    return;
+  }
+  paint({ html: topbar('') + empty('الصفحة غير موجودة', 'ارجع للرئيسية وجرّب من جديد', '<a class="btn soft sm" href="#/">الرئيسية</a>'), nav: '' }, tok);
+}
+window.addEventListener('hashchange', render);
+
+/* pull to refresh */
+(function () {
+  let y0 = null, dy = 0, el;
+  document.addEventListener('touchstart', e => {
+    const v = $('#view'); if (!v || v.scrollTop > 0 || $('.sheet') || !curHash.match(/^(\/|\/orders|\/notifs|\/services)(\?|$)/)) { y0 = null; return; }
+    y0 = e.touches[0].clientY; dy = 0;
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (y0 == null) return;
+    dy = e.touches[0].clientY - y0;
+    if (dy > 12) {
+      if (!el) { el = document.createElement('div'); el.className = 'ptr'; $('#view').prepend(el); }
+      el.style.height = Math.min(dy / 2, 46) + 'px';
+      el.textContent = dy > 100 ? 'اترك للتحديث' : 'اسحب للتحديث';
+    }
+  }, { passive: true });
+  document.addEventListener('touchend', () => {
+    if (y0 == null) return;
+    const doIt = dy > 100; y0 = null;
+    if (el) { el.remove(); el = null; }
+    if (doIt) { buzz(10); render(); }
+  });
+})();
+
+/* ====== boot ====== */
+function applyBoot(b) {
+  if (b.services && b.services.length) { S.services = b.services; LS.set('svc', b.services); }
+  if (b.stats) { S.stats = b.stats; LS.set('stats', b.stats); }
+  if (S.token) { if (b.me) saveMe(b.me); else { clearSession(); toast('انتهت الجلسة، سجّل الدخول من جديد'); } }
+}
+async function refreshMe() {
+  if (!S.token) return;
+  try { const me = await rpc('get_me'); saveMe(me); } catch (e) {}
+}
+let pollT;
+function startPolling() {
+  const tick = async () => {
+    if (document.hidden || !S.token) return;
+    try {
+      const r = await rpc('unread_count');
+      if (r.n !== S.unread) { S.unread = r.n; updateBadges(); if (curHash.indexOf('/notifs') === 0) render(); }
+    } catch (e) {}
+  };
+  clearInterval(pollT); pollT = setInterval(tick, 45000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { tick(); } });
+}
+async function boot() {
+  applyTheme();
+  $('#app').insertAdjacentHTML('beforebegin', sprite());
+  $('#nav').addEventListener('click', () => buzz(8));
+  const done = () => { const sp = $('#splash'); if (sp) { sp.classList.add('hide'); setTimeout(() => sp.remove(), 400); } };
+  /* never block the first paint on the network: render at once from built-in/cached data, refresh when the server answers */
+  const bp = rpc('boot', null, { timeout: 12000 }).then(b => {
+    const before = JSON.stringify(S.services) + JSON.stringify(S.stats); applyBoot(b);
+    if (before !== JSON.stringify(S.services) + JSON.stringify(S.stats) && /^(#\/?)?(services)?$/.test(location.hash)) render();
+  }).catch(() => {});
+  if (S.token) await Promise.race([bp, new Promise(r => setTimeout(r, 2500))]);
+  await render();
+  done();
+  startPolling();
+  appIcon();
+}
+function appIcon() {
+  try {
+    const c = document.createElement('canvas'); c.width = c.height = 180; const x = c.getContext('2d');
+    x.fillStyle = '#063F46'; x.fillRect(0, 0, 180, 180);
+    x.fillStyle = '#F4A51C'; x.beginPath(); x.arc(90, 90, 62, 0, 7); x.fill();
+    x.fillStyle = '#063F46'; x.font = '700 92px sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('ش', 90, 98);
+    const l = document.createElement('link'); l.rel = 'apple-touch-icon'; l.href = c.toDataURL('image/png'); document.head.appendChild(l);
+  } catch (e) {}
+}
+
+/* ====== feed (home + service page) ====== */
+const HS = { tab: LS.get('htab', 'jobs'), svc: null, q: '', area: null, items: [] };
+let FEED = null;
+
+function chipsHtml(st) {
+  const e = s => `<span style="font-family:'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif">${s}</span>`;
+  return `<button class="chip ${!st.svc ? 'on' : ''}" data-a="fsvc" data-v="">الكل</button>` +
+    activeSvcs().filter(s => s.slug !== 'other').map(s => `<button class="chip ${st.svc === s.slug ? 'on' : ''}" data-a="fsvc" data-v="${esc(s.slug)}">${e(emo(s.slug))}${esc(s.name)}</button>`).join('');
+}
+function tabsHtml(st) {
+  return `<div class="seg" role="tablist"><button role="tab" class="${st.tab === 'jobs' ? 'on' : ''}" data-a="ftab" data-v="jobs">${ic('list', 's')} طلبات</button><button role="tab" class="${st.tab === 'workers' ? 'on' : ''}" data-a="ftab" data-v="workers">${ic('users', 's')} عمّال</button></div>`;
+}
+function feedItemsHtml(st) {
+  if (!st.items.length) {
+    const filtered = st.q || st.svc || st.area;
+    if (st.tab === 'jobs') return empty(filtered ? 'ما لقينا طلبات مطابقة' : 'لا توجد طلبات الآن', filtered ? 'جرّب تغيّر البحث أو المنطقة' : 'كن أول من ينشر طلبا وسيصل للعمال القريبين', `<a class="btn sun sm" href="#/post${st.svc ? '?svc=' + st.svc : ''}">${ic('plus', 's')} انشر طلبا</a>`);
+    return empty(filtered ? 'ما لقينا عمالا مطابقين' : 'لا يوجد عمال بعد', 'هل تملك مهارة؟ انضم كعامل واكسب من شغلك', '<a class="btn sun sm" href="#/join">انضم كعامل</a>');
+  }
+  const list = st.tab === 'jobs' ? st.items.map(jobCard).join('') : st.items.map(workerCard).join('');
+  return `<div class="list fade-in">${list}</div>` + (st.tab === 'jobs' && !st.done ? `<div class="wrap" style="margin-top:12px"><button class="btn ghost" data-a="fmore">عرض المزيد</button></div>` : '');
+}
+async function feedLoad(more) {
+  const f = FEED; if (!f) return;
+  const st = f.st, box = $('#feed'); if (!box) return;
+  const key = ++f.seq;
+  if (!more) { box.innerHTML = skeletons(4, st.tab === 'workers' ? 'w' : 'j'); st.items = []; st.done = false; }
+  try {
+    let items;
+    if (st.tab === 'jobs') {
+      items = await rpc('jobs_feed', { p_service: st.svc || null, p_area: st.area || null, p_q: st.q || null, p_before: more && st.items.length ? st.items[st.items.length - 1].at : null, p_limit: 20 });
+    } else {
+      items = await rpc('workers_list', { p_service: st.svc || null, p_area: st.area || null, p_q: st.q || null, p_limit: 40 });
+    }
+    if (key !== f.seq || !$('#feed')) return;
+    st.items = more ? st.items.concat(items) : items;
+    st.done = st.tab === 'workers' || items.length < 20;
+    if (!more && st.tab === 'jobs' && !st.q && !st.svc && !st.area) LS.set('feed', items.slice(0, 12));
+    $('#feed').innerHTML = feedItemsHtml(st);
+  } catch (e) {
+    if (key !== f.seq || !$('#feed')) return;
+    const cached = (!more && st.tab === 'jobs' && !st.q && !st.svc && !st.area) ? LS.get('feed', null) : null;
+    if (cached && cached.length && e.code === 'net') {
+      st.items = cached; st.done = true;
+      $('#feed').innerHTML = `<div class="wrap" style="margin-bottom:10px"><div class="banner teal">${ic('info')}<span>لا يوجد اتصال — تعرض آخر بيانات محفوظة</span></div></div>` + feedItemsHtml(st);
+    } else $('#feed').innerHTML = errorBox(e, 'feedload');
+  }
+}
+function feedSync() {
+  const f = FEED; if (!f) return;
+  const t = $('#ftabs'); if (t) t.innerHTML = tabsHtml(f.st);
+  const c = $('#chips'); if (c) c.innerHTML = chipsHtml(f.st);
+  const a = $('#farea'); if (a) { a.classList.toggle('on', !!f.st.area); a.innerHTML = ic('pin', 's') + (f.st.area || 'كل المناطق'); }
+}
+ACT.feedload = () => feedLoad(false);
+ACT.ftab = t => { if (!FEED) return; FEED.st.tab = t.dataset.v; if (FEED.home) LS.set('htab', t.dataset.v); feedSync(); feedLoad(false); };
+ACT.fsvc = t => { if (!FEED) return; FEED.st.svc = t.dataset.v || null; feedSync(); feedLoad(false); buzz(6); };
+ACT.fmore = t => busy(t, () => feedLoad(true));
+ACT.farea = () => {
+  if (!FEED) return;
+  openSheet(`<h3>اختر المنطقة</h3><div class="wrapchips" style="margin-top:8px"><button class="chip ${!FEED.st.area ? 'on' : ''}" data-a="fareaset" data-v="">كل المناطق</button>` +
+    AREAS.map(a => `<button class="chip ${FEED.st.area === a ? 'on' : ''}" data-a="fareaset" data-v="${esc(a)}">${esc(a)}</button>`).join('') + '</div>');
+};
+ACT.fareaset = t => { if (!FEED) return; FEED.st.area = t.dataset.v || null; closeSheet(); feedSync(); feedLoad(false); };
+
+function howHtml() {
+  if (LS.get('hidehow', false)) return '';
+  const step = (n, tx) => `<div class="card" style="flex:none;width:150px;padding:10px 12px"><span class="badge solid">${n}</span><div class="sm b" style="margin-top:6px;line-height:1.5">${tx}</div></div>`;
+  return `<div class="sec"><b>كيف تعمل شغلة؟</b><button data-a="hidehow">إخفاء</button></div>
+    <div class="chips" style="padding-top:0">${step(1, 'انشر طلبك وحدّد ميزانيتك')}${step(2, 'يصلك عدة عروض من عمّال موثّقين')}${step(3, 'اختر الأنسب وتواصل معه مباشرة')}${step(4, 'أعطِه رمز الإنجاز عندما ترضى عن الشغل')}</div>`;
+}
+ACT.hidehow = () => { LS.set('hidehow', true); render(); };
+
+route(/^\/?$/, async ctx => {
+  const st = HS;
+  FEED = { st, seq: 0, home: true };
+  const first = S.me ? esc(S.me.name.split(' ')[0]) : '';
+  const stats = S.stats ? `<p>${S.stats.workers} عامل موثّق · ${S.stats.jobs} طلب مفتوح الآن</p>` : '<p>اطلب أي خدمة أو اكسب من مهارتك</p>';
+  const w = S.me && S.me.worker;
+  const second = w && w.status === 'approved'
+    ? `<a class="hb" href="#/worker/${esc(S.me.id)}">${ic('user', 's')} ملفي كعامل</a>`
+    : `<a class="hb" href="#/join">🛠️ ${w ? 'طلب الانضمام' : 'انضم كعامل'}</a>`;
+  const html = `
+    <div class="top"><div class="logo"><i>ش</i>شغلة</div>
+      <a class="ibtn" href="#/notifs" aria-label="الإشعارات">${ic('bell')}<span class="dot" id="bell-dot" ${S.unread > 0 ? '' : 'hidden'}>${S.unread > 9 ? '9+' : S.unread}</span></a></div>
+    <div class="hero"><h2>${S.me ? 'أهلا ' + first + ' 👋' : 'مين بدك اليوم؟'}</h2>${stats}
+      <label class="search">${ic('search')}<input id="q" type="search" enterkeyhint="search" autocomplete="off" placeholder="ابحث: سباك، كهربائي، علاج طبيعي…" value="${esc(st.q)}"></label>
+      <div class="hbtns"><a class="hb sun" href="#/post">${ic('plus', 's')} انشر طلبا</a>${second}</div></div>
+    <div id="ftabs">${tabsHtml(st)}</div>
+    <div class="chips" id="chips">${chipsHtml(st)}</div>
+    <div class="wrap row" style="margin:2px 0 10px"><button class="chip sm ${st.area ? 'on' : ''}" id="farea" data-a="farea">${ic('pin', 's')}${esc(st.area || 'كل المناطق')}</button><span class="sp"></span><button class="chip sm" data-a="feedload" aria-label="تحديث">${ic('refresh', 's')}تحديث</button></div>
+    <div id="feed"></div>
+    ${S.me ? '' : howHtml()}`;
+  return {
+    html, nav: 'home', mount: v => {
+      const q = $('#q', v);
+      q.addEventListener('input', debounce(() => { st.q = q.value.trim(); feedLoad(false); }, 350));
+      q.addEventListener('keydown', e => { if (e.key === 'Enter') { q.blur(); } });
+      feedLoad(false);
+    }
+  };
+}, { keepScroll: true });
+
+/* ====== services ====== */
+route(/^\/services$/, async () => {
+  PICKQ = '';
+  const tile = s => s.slug === 'other' ? '' : `<a class="sg" href="#/svc/${esc(s.slug)}" data-v="${esc(s.slug)}">${tileHtml(s.slug)}<span>${esc(s.name)}</span></a>`;
+  const n = activeSvcs().filter(s => s.slug !== 'other').length;
+  const extra = `<div class="suggest"><b>ما لقيت خدمتك؟</b><p class="sm muted">شغلة بتكبر معكم. اطلبها كـ«خدمة أخرى» أو اقترح علينا نضيفها.</p><div class="btns"><a class="btn sun sm" href="#/post?svc=other">${ic('plus', 's')} اطلب خدمة أخرى</a><button class="btn soft sm" data-a="suggestsvc">اقترح خدمة</button></div></div>`;
+  return { html: topbar('كل الخدمات', { back: false }) + `<div class="wrap"><p class="muted sm">${n} خدمة في ${Object.keys(GROUPS).length - 1} مجالات، والقائمة تكبر باستمرار.</p></div>` + svcPicker(tile, extra) + `<div class="wrap" style="margin-bottom:12px">${socialHtml()}</div>`, nav: 'services', mount: v => svcPickerMount(v) };
+}, { keepScroll: true });
+ACT.suggestsvc = async () => {
+  if (!S.token) return loginTo('/services');
+  const r = await promptSheet({ title: 'اقترح خدمة أو مهنة', text: 'اكتب اسم الخدمة التي تحتاجها أو تتقنها ولم تجدها. نراجع الاقتراحات ونضيفها للقائمة.', ph: 'مثال: صيانة بوابير كاز', ok: 'إرسال الاقتراح' });
+  if (!r) return;
+  try { await rpc('suggest_service', { p_name: r.slice(0, 40) }); toast('شكرا! وصلنا اقتراحك', 'ok'); } catch (e) { fail(e); }
+};
+
+route(/^\/svc\/([a-z0-9_]+)$/, async ctx => {
+  const slug = ctx.params[0], s = svc(slug);
+  const st = { tab: 'jobs', svc: slug, q: '', area: null, items: [] };
+  FEED = { st, seq: 0, home: false };
+  const html = `<div class="top"><button class="ibtn" data-a="back" aria-label="رجوع">${ic('back')}</button>${tileHtml(slug)}<h1>${esc(s.name)}</h1></div>
+    <div class="wrap gap"><a class="btn sun" href="#/post?svc=${esc(slug)}">${ic('plus')} انشر طلبا في ${esc(s.name)}</a></div>
+    <div id="ftabs">${tabsHtml(st)}</div>
+    <div class="wrap row" style="margin:12px 0 10px"><button class="chip sm" id="farea" data-a="farea">${ic('pin', 's')}كل المناطق</button></div>
+    <div id="feed"></div>`;
+  return { html, nav: 'services', mount: () => feedLoad(false) };
+});
+
+/* ====== auth ====== */
+let AUTH_TAB = 'login';
+route(/^\/login$/, async ctx => {
+  if (S.token && S.me) { replace(ctx.q.next || '/'); return null; }
+  const tab = ctx.q.tab || AUTH_TAB, su = tab === 'signup';
+  const html = `
+    <div style="background:linear-gradient(160deg,var(--deep),var(--primary));color:#fff;padding:calc(34px + env(safe-area-inset-top)) 20px 56px;border-radius:0 0 34px 34px;text-align:center;position:relative">
+      <button class="ibtn" data-a="back" aria-label="رجوع" style="position:absolute;top:calc(12px + env(safe-area-inset-top));inset-inline-start:16px;background:rgba(255,255,255,.14);border:0;color:#fff">${ic('back')}</button>
+      <div class="logo" style="justify-content:center;color:#fff;font-size:44px"><i style="background:var(--sun);color:#10272D;width:44px;height:44px;font-size:28px;border-radius:14px">ش</i>شغلة</div>
+      <p style="opacity:.88;margin-top:6px">${su ? 'أنشئ حسابك في دقيقة — بدون رسائل أو رموز' : 'أهلا بعودتك'}</p></div>
+    <div class="wrap" style="margin-top:-34px"><form class="card gap" id="af" autocomplete="on" novalidate>
+      <div class="seg" style="margin:0"><button type="button" class="${su ? '' : 'on'}" data-a="authtab" data-v="login">دخول</button><button type="button" class="${su ? 'on' : ''}" data-a="authtab" data-v="signup">حساب جديد</button></div>
+      ${su ? `<div class="field"><label for="a-name">الاسم</label><input class="inp" id="a-name" name="name" autocomplete="name" maxlength="40" placeholder="مثال: محمد أحمد"></div>` : ''}
+      <div class="field"><label for="a-phone">رقم الجوال</label><input class="inp" id="a-phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" style="text-align:right" placeholder="059 123 4567"></div>
+      ${su ? `<div class="field"><label for="a-area">منطقتك</label><select class="inp" id="a-area" name="area"><option value="">اختر…</option>${AREAS.filter(a => a !== 'عن بعد').map(a => `<option>${esc(a)}</option>`).join('')}</select></div>` : ''}
+      <div class="field"><label for="a-pass">كلمة السر</label><div class="pw"><input class="inp" id="a-pass" name="password" type="password" autocomplete="${su ? 'new-password' : 'current-password'}" placeholder="${su ? '6 خانات على الأقل' : 'كلمة السر'}"><button type="button" data-a="showpw" aria-label="إظهار">${ic('eye')}</button></div></div>
+      <button class="btn sun" type="submit" id="a-go">${su ? 'إنشاء الحساب' : 'دخول'}</button>
+      <p class="hint" style="text-align:center">${ic('lock', 's')} رقم جوالك لا يظهر لأحد إلا بعد قبول العرض بينك وبين الطرف الآخر.</p>
+    </form></div>`;
+  return {
+    html, nonav: true, mount: v => {
+      $('#af', v).addEventListener('submit', async e => {
+        e.preventDefault();
+        const phone = $('#a-phone', v).value.trim(), pass = $('#a-pass', v).value;
+        const btn = $('#a-go', v);
+        await busy(btn, async () => {
+          try {
+            let r;
+            if (su) {
+              const name = $('#a-name', v).value.trim();
+              if (name.length < 2) throw mkErr('bad_name');
+              r = await rpc('signup', { p_phone: phone, p_pass: pass, p_name: name, p_area: $('#a-area', v).value || null });
+            } else r = await rpc('login', { p_phone: phone, p_pass: pass });
+            setSession(r.token, r.me); buzz(20);
+            toast(su ? 'أهلا بك في شغلة 🎉' : 'أهلا ' + r.me.name.split(' ')[0], 'ok');
+            if (su) confetti();
+            replace(ctx.q.next || '/');
+          } catch (er) { fail(er); }
+        });
+      });
+    }
+  };
+});
+ACT.authtab = t => { AUTH_TAB = t.dataset.v; const q = new URLSearchParams(location.hash.split('?')[1] || ''); q.set('tab', AUTH_TAB); replace('/login?' + q.toString()); };
+ACT.showpw = t => { const i = t.parentNode.querySelector('input'); const show = i.type === 'password'; i.type = show ? 'text' : 'password'; t.innerHTML = ic(show ? 'eyeoff' : 'eye'); };
+async function logout() {
+  try { await rpc('logout'); } catch (e) {}
+  clearSession(); toast('تم تسجيل الخروج'); go('/');
+}
+ACT.logout = async () => { if (await confirmSheet({ title: 'تسجيل الخروج؟', text: 'يمكنك الدخول مرة أخرى برقمك وكلمة السر.', ok: 'خروج', danger: true })) logout(); };
+
+/* ====== account ====== */
+function workerCard2() {
+  const w = S.me.worker;
+  if (!w) return `<div class="card gap" style="background:var(--sun-soft);border-color:transparent"><div class="row"><span class="tile">🛠️</span><div class="sp"><b>انضم كعامل</b><div class="sm" style="color:var(--sun-ink2)">استقبل طلبات قريبة منك وقدّم عروضك. نراجع كل حساب قبل التفعيل.</div></div></div><a class="btn sun" href="#/join">ابدأ التسجيل كعامل</a></div>`;
+  const st = w.status;
+  if (st === 'draft') return `<div class="card gap"><div class="row"><span class="badge sun">مسودة</span><b>طلب الانضمام غير مكتمل</b></div><a class="btn" href="#/join">أكمل التسجيل</a></div>`;
+  if (st === 'pending') return `<div class="card gap"><div class="row"><span class="badge sun">${ic('clock', 's')} قيد المراجعة</span></div><p class="sm">وصلنا طلبك وسنراجعه قريبا، عادة خلال 24 ساعة. سنرسل لك إشعارا عند القرار.</p><a class="btn ghost sm" href="#/join">عرض/تعديل الطلب</a></div>`;
+  if (st === 'rejected') return `<div class="card gap"><div class="row"><span class="badge bad">لم تتم الموافقة</span></div><div class="banner bad">${ic('alert')}<span>${esc(w.note || 'يرجى مراجعة بياناتك')}</span></div><a class="btn" href="#/join">عدّل وأعد الإرسال</a></div>`;
+  if (st === 'suspended') return `<div class="card gap"><div class="row"><span class="badge bad">موقوف مؤقتا</span></div><p class="sm">${esc(w.note || 'تم إيقاف حسابك كعامل. تواصل مع الدعم لمعرفة السبب.')}</p></div>`;
+  return `<div class="card gap"><div class="row"><span class="badge ok">${ic('shield', 's')} عامل موثّق</span><span class="sp"></span>${starsRow(w.rating, w.count)}</div>
+    <button class="toggle ${w.available ? 'on' : ''}" data-a="avail" role="switch" aria-checked="${!!w.available}"><span class="sp"><b>متاح لاستقبال الطلبات</b><div class="hint">عند الإيقاف لن يظهر اسمك في قائمة العمّال</div></span><span class="sw"></span></button>
+    <div class="btns"><a class="btn soft sm" href="#/worker/${esc(S.me.id)}">ملفي العام</a><a class="btn ghost sm" href="#/join">تعديل ملفي</a></div></div>`;
+}
+route(/^\/account$/, async () => {
+  if (!S.token || !S.me) {
+    return { nav: 'account', html: topbar('حسابي', { back: false }) + empty('أهلا بك في شغلة', 'سجّل الدخول لنشر الطلبات وتقديم العروض ومتابعة إشعاراتك', '<a class="btn sun sm" href="#/login">دخول / حساب جديد</a>') + menuGuest() };
+  }
+  refreshMe();
+  const m = S.me, w = m.worker;
+  const html = `${topbar('حسابي', { back: false })}
+    <div class="wrap gap">
+      <div class="card row">${avatar(m.name, w && w.thumb, 'lg')}<div class="sp"><h2 class="h2">${esc(m.name)}</h2><div class="muted sm"><span class="ltr">${esc(m.phone)}</span></div><div class="muted sm">${ic('pin', 's')} ${esc(m.area || 'لم تحدد المنطقة')}</div></div><button class="ibtn" data-a="editprofile" aria-label="تعديل">${ic('edit')}</button></div>
+      ${workerCard2()}
+      <div class="menu">
+        <a href="#/notifs">${ic('bell')}<span>الإشعارات</span>${S.unread > 0 ? `<span class="badge bad">${S.unread}</span>` : ''}<span class="go">${ic('chev', 's')}</span></a>
+        <a href="#/orders">${ic('list')}<span>طلباتي وعروضي</span><span class="go">${ic('chev', 's')}</span></a>
+        <button data-a="darkmode">${ic('moon')}<span class="sp">وضع التوفير (داكن)</span><span class="badge ${document.documentElement.classList.contains('dark') ? 'ok' : 'gray'}">${document.documentElement.classList.contains('dark') ? 'مفعّل' : 'متوقف'}</span></button>
+        <button data-a="shareapp">${ic('share')}<span>ادعُ صديقا عبر واتساب</span><span class="go">${ic('chev', 's')}</span></button>
+        <button data-a="chpass">${ic('lock')}<span>تغيير كلمة السر</span><span class="go">${ic('chev', 's')}</span></button>
+        ${m.admin ? `<a href="#/admin">${ic('gear')}<span>لوحة الإدارة</span><span class="go">${ic('chev', 's')}</span></a>` : ''}
+        <button data-a="terms">${ic('info')}<span>الشروط والأمان</span><span class="go">${ic('chev', 's')}</span></button>
+        <button data-a="logout" style="color:var(--danger)">${ic('logout')}<span>تسجيل الخروج</span></button>
+      </div>
+      ${socialHtml()}
+      ${m.admin ? '' : `<button class="hint" data-a="claim" style="text-align:center;padding:8px">لدي رمز المالك</button>`}
+    </div>`;
+  return { html, nav: 'account' };
+});
+function menuGuest() {
+  return `<div class="wrap gap" style="margin-top:6px"><div class="menu"><button data-a="darkmode">${ic('moon')}<span class="sp">وضع التوفير (داكن)</span></button><button data-a="terms">${ic('info')}<span>الشروط والأمان</span></button></div>${socialHtml()}</div>`;
+}
+ACT.avail = async t => {
+  const on = !S.me.worker.available;
+  try { await rpc('worker_set_available', { p_on: on }); S.me.worker.available = on; saveMe(S.me); buzz(); render(); toast(on ? 'أنت الآن متاح لاستقبال الطلبات' : 'تم إيقاف ظهورك مؤقتا', 'ok'); } catch (e) { fail(e); }
+};
+ACT.darkmode = () => {
+  const cur = document.documentElement.classList.contains('dark');
+  LS.set('dark', !cur); applyTheme(); render();
+  toast(!cur ? 'تم تفعيل وضع التوفير: ألوان داكنة وحركة أقل لتوفير البطارية' : 'تم إيقاف وضع التوفير');
+};
+ACT.shareapp = () => {
+  const text = 'جرّب تطبيق «شغلة» 🛠️ اطلب أي خدمة (سباكة، كهرباء، علاج طبيعي، توصيل…) أو اكسب من مهارتك في قطاع غزة.\n' + APP_URL;
+  if (navigator.share) navigator.share({ text }).catch(() => {}); else window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+};
+ACT.terms = () => openSheet(`<h3>الشروط والأمان</h3><div class="gap sm" style="line-height:1.7">
+  <p>• «شغلة» تعرّفك على عمّال وزبائن قريبين منك؛ الاتفاق على السعر والعمل يتم مباشرة بينكما.</p>
+  <p>• لا تدفع مقدما قبل أن ترى العمل. يظهر رقم جوالك للطرف الآخر فقط بعد قبول العرض.</p>
+  <p>• عند انتهاء العمل وارتياحك له، أعطِ العامل «رمز الإنجاز» ليؤكد الإنجاز. لا تعطِ الرمز قبل ذلك.</p>
+  <p>• كل عامل يُراجَع قبل التفعيل، لكن تحقق دائما من الخبرة والتقييمات قبل اختيار العرض.</p>
+  <p>• استخدم زر الإبلاغ عن أي طلب أو عامل مخالف، وسنراجعه ونوقفه عند الحاجة.</p></div>
+  <button class="btn" style="margin-top:14px" onclick="closeSheet()">فهمت</button>`);
+ACT.editprofile = () => {
+  openSheet(`<h3>تعديل بياناتي</h3><div class="gap"><div class="field"><label>الاسم</label><input class="inp" id="ep-n" maxlength="40" value="${esc(S.me.name)}"></div>
+    <div class="field"><label>المنطقة</label><select class="inp" id="ep-a"><option value="">اختر…</option>${AREAS.filter(a => a !== 'عن بعد').map(a => `<option ${a === S.me.area ? 'selected' : ''}>${esc(a)}</option>`).join('')}</select></div>
+    <button class="btn" id="ep-ok">حفظ</button></div>`, el => {
+    $('#ep-ok', el).onclick = e => busy(e.currentTarget, async () => {
+      try { saveMe(await rpc('update_profile', { p_name: $('#ep-n', el).value, p_area: $('#ep-a', el).value || null })); closeSheet(); toast('تم الحفظ', 'ok'); render(); } catch (er) { fail(er); }
+    });
+  });
+};
+ACT.chpass = () => {
+  openSheet(`<h3>تغيير كلمة السر</h3><div class="gap"><div class="field"><label>كلمة السر الحالية</label><input class="inp" id="cp-o" type="password" autocomplete="current-password"></div>
+    <div class="field"><label>كلمة السر الجديدة</label><input class="inp" id="cp-n" type="password" autocomplete="new-password" placeholder="6 خانات على الأقل"></div><button class="btn" id="cp-ok">تغيير</button></div>`, el => {
+    $('#cp-ok', el).onclick = e => busy(e.currentTarget, async () => {
+      try { await rpc('change_password', { p_old: $('#cp-o', el).value, p_new: $('#cp-n', el).value }); closeSheet(); toast('تم تغيير كلمة السر', 'ok'); } catch (er) { fail(er); }
+    });
+  });
+};
+ACT.claim = () => {
+  openSheet(`<h3>رمز المالك</h3><p class="muted sm" style="margin-bottom:10px">للمالك فقط: أدخل الرمز السري المرفق مع ملف الإعداد لتفعيل لوحة الإدارة على حسابك.</p>
+    <div class="gap"><input class="inp" id="cl-s" dir="ltr" placeholder="xxxx-xxxx-xxxx-xxxx" autocomplete="off" autocapitalize="off"><button class="btn" id="cl-ok">تفعيل</button></div>`, el => {
+    $('#cl-ok', el).onclick = e => busy(e.currentTarget, async () => {
+      try {
+        const sec = $('#cl-s', el).value.replace(/[^0-9a-fA-F]/g, '').toLowerCase();
+        const r = await rpc('admin_claim', { p_secret: sec });
+        saveMe(r.me); closeSheet(); toast('تم تفعيل لوحة الإدارة', 'ok'); confetti(); go('/admin');
+      } catch (er) { fail(er); }
+    });
+  });
+};
+
+/* ====== notifications ====== */
+const NK = { newjob: '🆕', invite: '📩', offer: '💬', accepted: '✅', lost: '🙁', done: '🎉', review: '⭐', cancel: '❌', worker_ok: '🎊', worker_no: '⚠️', worker_pending: '🕒', report: '🚩' };
+route(/^\/notifs$/, async ctx => {
+  ctx.paint({ html: topbar('الإشعارات') + skeletons(4), nav: 'account' });
+  const list = await rpc('notifs_list');
+  const hasNew = list.some(n => !n.read);
+  const html = topbar('الإشعارات') + (list.length
+    ? `<div class="list">${list.map(n => `<a class="ntf ${n.read ? '' : 'new'}" href="#${ntfLink(n)}"><span class="tile">${NK[n.kind] || '🔔'}</span><div class="sp"><div class="b" style="line-height:1.5">${esc(n.body)}</div><div class="xs muted">${ago(n.at)}</div></div></a>`).join('')}</div>`
+    : empty('لا توجد إشعارات', 'ستصلك هنا العروض الجديدة وقرارات المراجعة وكل تحديث على طلباتك'));
+  if (hasNew) rpc('notifs_read').then(() => { S.unread = 0; if (S.me) { S.me.unread = 0; } updateBadges(); }).catch(() => {});
+  return { html, nav: 'account' };
+}, { auth: true });
+function ntfLink(n) {
+  if (n.kind === 'worker_pending' || n.kind === 'report') return '/admin';
+  if (n.kind === 'worker_ok' || n.kind === 'worker_no') return '/account';
+  return n.ref ? '/job/' + n.ref : '/orders';
+}
+
+/* ====== helpers ====== */
+const JST = { open: ['مفتوح للعروض', 'sun'], assigned: ['قيد التنفيذ', ''], done: ['تم الإنجاز', 'ok'], cancelled: ['ملغي', 'gray'], hidden: ['قيد المراجعة', 'bad'] };
+function statusBadge(s) { const x = JST[s] || [s, 'gray']; return `<span class="badge ${x[1]}">${x[0]}</span>`; }
+function progHtml(status) {
+  if (status === 'cancelled' || status === 'hidden') return '';
+  const i = status === 'open' ? 0 : status === 'assigned' ? 1 : 2;
+  const dots = [0, 1, 2].map(k => `<i class="${k <= i ? 'on' : ''}"></i>${k < 2 ? `<u class="${k < i ? 'on' : ''}"></u>` : ''}`).join('');
+  return `<div><div class="prog">${dots}</div><div class="proglbl"><span>نُشر</span><span>اختيار عامل</span><span>تم الإنجاز</span></div></div>`;
+}
+function contactCard(c, who) {
+  return `<div class="card gap"><div class="row">${avatar(c.name, c.thumb, 'sm')}<div class="sp"><div class="xs muted">${who}</div><b>${esc(c.name)}</b></div><span class="ltr b">${esc(c.phone || '')}</span></div>
+    <div class="btns"><a class="btn sm" href="tel:${esc(c.phone)}">${ic('phone', 's')} اتصال</a><a class="btn wa sm" target="_blank" rel="noopener" href="${esc(waLink(c.phone))}">${ic('msg', 's')} واتساب</a></div></div>`;
+}
+function stepper(id, val, o) {
+  o = o || {};
+  return `<div class="step"><button type="button" data-a="stp" data-o="${id}" data-d="${-(o.step || 10)}" data-min="${o.min || 0}" aria-label="أنقص">${ic('minus')}</button>
+    <span class="row" style="gap:6px"><input class="stin" id="${id}" type="number" inputmode="numeric" min="${o.min || 0}" max="100000" value="${val}" aria-label="${esc(o.label || '')}"><b class="muted">₪</b></span>
+    <button type="button" data-a="stp" data-o="${id}" data-d="${o.step || 10}" data-min="${o.min || 0}" aria-label="زِد">${ic('plus')}</button></div>`;
+}
+ACT.stp = t => {
+  const i = $('#' + t.dataset.o); const min = +t.dataset.min || 0;
+  i.value = Math.min(100000, Math.max(min, (parseInt(i.value, 10) || 0) + (+t.dataset.d))); buzz(6);
+  i.dispatchEvent(new Event('input', { bubbles: true }));
+};
+function bindOtp(root) {
+  const ins = $$('.otp input', root);
+  ins.forEach((el, i) => {
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/\D/g, '').slice(-1);
+      if (el.value && ins[i + 1]) ins[i + 1].focus();
+    });
+    el.addEventListener('keydown', e => { if (e.key === 'Backspace' && !el.value && ins[i - 1]) ins[i - 1].focus(); });
+    el.addEventListener('paste', e => {
+      const d = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 4);
+      if (d.length > 1) { e.preventDefault(); ins.forEach((x, k) => x.value = d[k] || ''); ins[Math.min(d.length, 3)].focus(); }
+    });
+  });
+}
+const otpVal = root => $$('.otp input', root).map(i => i.value).join('');
+const otpHtml = () => `<div class="otp">${[0, 1, 2, 3].map(() => '<input inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="رقم">').join('')}</div>`;
+const starSel = id => `<div class="starsel" id="${id}" data-v="0">${[1, 2, 3, 4, 5].map(n => `<button type="button" data-a="star" data-n="${n}" aria-label="${n} نجوم">${ic('star')}</button>`).join('')}</div>`;
+ACT.star = t => {
+  const box = t.parentNode; box.dataset.v = t.dataset.n; buzz(8);
+  $$('button', box).forEach((b, i) => b.classList.toggle('on', i < +t.dataset.n));
+};
+
+/* ====== job detail ====== */
+let JOB = null;
+route(/^\/job\/([0-9a-f-]{36})$/, async ctx => {
+  ctx.paint({ html: topbar('تفاصيل الطلب') + skeletons(2), nonav: true });
+  const j = await rpc('job_get', { p_id: ctx.params[0] });
+  JOB = j;
+  const right = `<button class="ibtn" data-a="sharejob" aria-label="مشاركة">${ic('share')}</button>` + (j.mine ? '' : `<button class="ibtn" data-a="reportjob" aria-label="إبلاغ">${ic('flag')}</button>`);
+  const flags = [statusBadge(j.status)];
+  if (j.urgent) flags.push(`<span class="badge sun">${ic('bolt', 's')} مستعجل</span>`);
+  if (j.demo) flags.push('<span class="badge gray">نموذج للتوضيح</span>');
+  const head = `<div class="card gap"><div class="dhead">${tileHtml(j.service, true)}<div class="sp"><div class="xs muted">${esc(svc(j.service).name)}</div><h2 class="h2">${esc(j.title)}</h2></div></div>
+    <div class="row" style="flex-wrap:wrap;gap:6px">${flags.join('')}</div>
+    <div class="kv"><div><small>الميزانية</small><b class="price" style="font-size:18px">${esc(budget(j))}</b></div><div><small>الموعد</small><b>${esc(j.when)}</b></div>
+      <div><small>المنطقة</small><b>${esc(j.area)}</b></div><div><small>الدفع</small><b>${esc(PAY[j.pay] || '')}</b></div></div>
+    ${j.descr ? `<p style="line-height:1.7">${esc(j.descr)}</p>` : ''}
+    <div class="xs muted">نشره ${esc(j.who)} · ${ago(j.at)}</div>${progHtml(j.status)}</div>`;
+  return { html: topbar('تفاصيل الطلب', { right }) + `<div class="wrap gap">${head}${jobRole(j)}</div>`, nonav: true, mount: v => { bindOtp(v); } };
+});
+
+function jobRole(j) {
+  if (j.mine) return ownerBlock(j);
+  if (j.contact) return assignedWorkerBlock(j);
+  return visitorBlock(j);
+}
+function ownerBlock(j) {
+  if (j.status === 'cancelled') return '<div class="banner">' + ic('info') + '<span>تم إلغاء هذا الطلب.</span></div>';
+  if (j.status === 'hidden') return '<div class="banner bad">' + ic('alert') + '<span>تم إخفاء هذا الطلب مؤقتا للمراجعة بسبب بلاغ.</span></div>';
+  if (j.status === 'open') {
+    const offers = j.offers || [];
+    const list = offers.length ? offers.map(o => `<div class="offer"><div class="row"><a class="row sp" href="#/worker/${esc(o.worker)}">${avatar(o.name, o.thumb, 'sm')}<div class="sp"><b>${esc(o.name)}</b>${o.demo ? ' <span class="badge gray">نموذج</span>' : ''}<div class="row" style="gap:8px">${starsRow(o.rating, o.count)}<span class="xs muted">${o.done} طلب منجز</span></div></div></a><span class="price">${o.price} ₪</span></div>
+        ${o.eta ? `<div class="sm muted">${ic('clock', 's')} ${esc(o.eta)}</div>` : ''}${o.note ? `<p class="sm">${esc(o.note)}</p>` : ''}
+        <button class="btn sm" style="width:100%" data-a="accept" data-id="${esc(o.id)}" data-n="${esc(o.name)}" data-p="${o.price}">اقبل هذا العرض</button></div>`).join('')
+      : empty('بانتظار العروض', 'أُرسل الطلب للعمال المناسبين. شاركه على واتساب ليصل لعدد أكبر.', `<button class="btn wa sm" data-a="sharejob">${ic('share', 's')} شارك على واتساب</button>`);
+    return `<div class="sec" style="margin:6px 0 0"><b>العروض (${offers.length})</b></div>${list}
+      <button class="btn danger sm" style="width:100%" data-a="canceljob">إلغاء الطلب</button>`;
+  }
+  if (j.status === 'assigned') {
+    const code = String(j.code || '').split('').map(d => `<span>${esc(d)}</span>`).join('');
+    return `<div class="card gap" style="text-align:center;border-color:var(--sun)"><b>🔑 رمز الإنجاز</b><div class="code" aria-label="الرمز ${esc(j.code)}">${code}</div>
+        <div class="banner" style="text-align:start">${ic('info')}<span>أعطِ هذا الرمز للعامل <b>فقط بعد أن ينهي الشغل وترضى عنه</b>. هو من يدخله ليؤكد الإنجاز.</span></div></div>
+      ${j.contact ? contactCard(j.contact, 'العامل الذي اخترته') : ''}
+      <button class="btn danger sm" style="width:100%" data-a="canceljob">إلغاء الطلب</button>`;
+  }
+  if (j.status === 'done') {
+    const w = j.contact ? contactCard(j.contact, 'نفّذ الطلب') : '';
+    if (j.review) return `<div class="banner ok">${ic('check')}<span>تم إنجاز الطلب. تقييمك: ${j.review.stars}/5 ${j.review.body ? '— ' + esc(j.review.body) : ''}</span></div>${w}`;
+    return `<div class="card gap" style="text-align:center"><div class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><b>تم إنجاز الطلب 🎉</b><p class="sm muted">قيّم العامل ليساعد غيرك في الاختيار</p>
+      ${starSel('rv-s')}<textarea class="inp" id="rv-t" maxlength="300" placeholder="رأيك بالعمل (اختياري)"></textarea><button class="btn sun" data-a="sendreview">إرسال التقييم</button></div>${w}`;
+  }
+  return '';
+}
+function assignedWorkerBlock(j) {
+  const c = contactCard(j.contact, 'صاحب الطلب');
+  if (j.status === 'assigned') return `${c}<div class="card gap" style="text-align:center;border-color:var(--sun)"><b>✅ أنهيت الشغل؟</b><p class="sm muted">اطلب من الزبون «رمز الإنجاز» المكوّن من 4 أرقام وأدخله هنا بعد أن يرضى عن العمل.</p>${otpHtml()}<button class="btn sun" data-a="completejob">تأكيد الإنجاز</button></div>`;
+  if (j.status === 'done') return `<div class="banner ok">${ic('check')}<span>تم إنجاز هذا الطلب. ${j.review ? 'تقييم الزبون: ' + j.review.stars + '/5' : 'بانتظار تقييم الزبون.'}</span></div>`;
+  return '<div class="banner">' + ic('info') + '<span>هذا الطلب لم يعد نشطا.</span></div>';
+}
+function visitorBlock(j) {
+  const next = encodeURIComponent('/job/' + j.id);
+  if (j.status !== 'open') return '<div class="banner">' + ic('info') + '<span>هذا الطلب لم يعد متاحا للعروض.</span></div>';
+  if (j.demo) return '<div class="banner teal">' + ic('info') + '<span>هذا طلب نموذجي لتوضيح شكل التطبيق، لا يمكن تقديم عروض عليه. ستظهر هنا طلبات حقيقية من الناس.</span></div>';
+  if (!S.token) return `<div class="card gap"><b>تريد تنفيذ هذا الطلب؟</b><p class="sm muted">سجّل الدخول كعامل لتقديم عرضك.</p><a class="btn" href="#/login?next=${next}">دخول / حساب جديد</a></div>`;
+  const ws = j.workerStatus;
+  if (j.myOffer && j.myOffer.status !== 'withdrawn') {
+    const o = j.myOffer, lbl = { sent: ['بانتظار رد الزبون', 'sun'], accepted: ['تم قبول عرضك', 'ok'], rejected: ['لم يتم اختيار عرضك', 'gray'] }[o.status] || ['', ''];
+    return `<div class="card gap" id="myoffer"><div class="row"><b class="sp">عرضك</b><span class="badge ${lbl[1]}">${lbl[0]}</span></div><div class="price">${o.price} ₪</div>${o.eta ? `<div class="sm muted">${ic('clock', 's')} ${esc(o.eta)}</div>` : ''}${o.note ? `<p class="sm">${esc(o.note)}</p>` : ''}
+      ${o.status === 'sent' ? `<div class="btns"><button class="btn soft sm" data-a="editoffer">${ic('edit', 's')} تعديل</button><button class="btn danger sm" data-a="withdraw">سحب العرض</button></div>` : ''}</div>`;
+  }
+  if (j.canOffer) return offerForm(j);
+  if (!ws) return `<div class="card gap" style="background:var(--sun-soft);border-color:transparent"><b>هل تنفّذ هذا النوع من الأعمال؟</b><p class="sm" style="color:var(--sun-ink2)">انضم كعامل ليتم اعتماد حسابك ثم قدّم عروضك على الطلبات.</p><a class="btn sun" href="#/join">انضم كعامل</a></div>`;
+  if (ws === 'pending') return '<div class="banner">' + ic('clock') + '<span>حسابك كعامل قيد المراجعة. ستتمكن من تقديم العروض فور الموافقة.</span></div>';
+  if (ws === 'approved') return '<div class="banner teal">' + ic('info') + '<span>هذا الطلب خارج الخدمات المسجّلة في ملفك. يمكنك إضافة خدمة من «تعديل ملفي» (تحتاج مراجعة).</span></div>';
+  return '<div class="banner">' + ic('info') + '<span>أكمل ملفك كعامل ليتم اعتماده قبل تقديم العروض.</span><a class="btn sm" href="#/join" style="margin-inline-start:auto">أكمل</a></div>';
+}
+function offerForm(j, prev) {
+  const base = j.bmax != null ? (j.bmin != null ? Math.round((j.bmin + j.bmax) / 2 / 5) * 5 : j.bmax) : 50;
+  const etas = ['خلال ساعة', 'اليوم', 'غدا', 'يتفق عليه'];
+  return `<div class="card gap" id="offerform"><b>قدّم عرضك</b>
+    <div class="field"><label>السعر الذي تقترحه</label>${stepper('of-price', prev ? prev.price : base, { min: 1, step: 5, label: 'السعر' })}</div>
+    <div class="field"><label>متى تصل؟</label><div class="wrapchips" id="of-eta" data-v="${esc(prev && prev.eta || etas[1])}">${etas.map(e => `<button type="button" class="chip sm ${(prev && prev.eta || etas[1]) === e ? 'on' : ''}" data-a="etapick" data-v="${e}">${e}</button>`).join('')}</div></div>
+    <div class="field"><label>ملاحظة للزبون (اختياري)</label><textarea class="inp" id="of-note" maxlength="300" placeholder="مثال: عندي كل المواد، وأضمن الشغل">${esc(prev && prev.note || '')}</textarea></div>
+    <button class="btn sun" data-a="sendoffer">أرسل العرض</button></div>`;
+}
+ACT.etapick = t => { const b = t.parentNode; b.dataset.v = t.dataset.v; $$('.chip', b).forEach(c => c.classList.toggle('on', c === t)); buzz(6); };
+ACT.sendoffer = t => busy(t, async () => {
+  try {
+    await rpc('offer_make', { p_job: JOB.id, p_price: parseInt($('#of-price').value, 10) || 0, p_eta: $('#of-eta').dataset.v, p_note: $('#of-note').value });
+    buzz(25); toast('تم إرسال عرضك، سنخبرك عند رد الزبون', 'ok'); render();
+  } catch (e) { fail(e); }
+});
+ACT.editoffer = () => { const old = $('#myoffer'); if (!old) return; const holder = document.createElement('div'); holder.innerHTML = offerForm(JOB, JOB.myOffer); old.replaceWith(holder.firstElementChild); };
+ACT.withdraw = async () => {
+  if (!await confirmSheet({ title: 'سحب العرض؟', text: 'سيختفي عرضك ولن يراه الزبون، ويمكنك تقديم عرض جديد لاحقا.', ok: 'سحب العرض', danger: true })) return;
+  try { await rpc('offer_withdraw', { p_job: JOB.id }); toast('تم سحب العرض'); render(); } catch (e) { fail(e); }
+};
+ACT.accept = async t => {
+  const d = t.dataset;
+  if (!await confirmSheet({ title: 'قبول عرض ' + d.n + '؟', text: `السعر ${d.p} ₪. بعد القبول يظهر رقم جوالك للعامل ورقمه لك، وتحصل على «رمز الإنجاز».`, ok: 'نعم، اقبل العرض' })) return;
+  try { await rpc('offer_accept', { p_offer: d.id }); buzz(30); confetti(); toast('تم قبول العرض — تواصل مع العامل الآن', 'ok'); render(); } catch (e) { fail(e); }
+};
+ACT.canceljob = async () => {
+  if (!await confirmSheet({ title: 'إلغاء الطلب؟', text: 'سيتوقف استقبال العروض، وإذا كان هناك عامل مختار سيتم إخباره.', ok: 'إلغاء الطلب', no: 'تراجع', danger: true })) return;
+  try { await rpc('job_cancel', { p_id: JOB.id }); toast('تم إلغاء الطلب'); render(); } catch (e) { fail(e); }
+};
+ACT.completejob = t => busy(t, async () => {
+  const code = otpVal($('#view'));
+  if (code.length < 4) return toast('أدخل الأرقام الأربعة', 'bad');
+  try { await rpc('job_complete', { p_id: JOB.id, p_code: code }); buzz([30, 50, 30]); confetti(); toast('تم تأكيد الإنجاز، بارك الله بجهدك 🎉', 'ok'); render(); } catch (e) { fail(e); }
+});
+ACT.sendreview = t => busy(t, async () => {
+  const n = +$('#rv-s').dataset.v;
+  if (!n) return toast('اختر عدد النجوم أولا', 'bad');
+  try { await rpc('review_add', { p_job: JOB.id, p_stars: n, p_body: $('#rv-t').value }); toast('شكرا لتقييمك', 'ok'); confetti(); render(); } catch (e) { fail(e); }
+});
+ACT.sharejob = () => {
+  if (!JOB) return;
+  const text = `طلب على «شغلة» 🛠️\n${JOB.title}\n📍 ${JOB.area} · 💰 ${budget(JOB)}\nافتح الطلب وقدّم عرضك:\n${APP_URL}#/job/${JOB.id}`;
+  if (navigator.share) navigator.share({ text }).catch(() => {}); else window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+};
+ACT.reportjob = async () => {
+  if (!S.token) return loginTo('/job/' + JOB.id);
+  const r = await promptSheet({ title: 'إبلاغ عن الطلب', text: 'اكتب سبب البلاغ باختصار (محتوى مخالف، احتيال، إعلان...)', ph: 'سبب البلاغ', danger: true, ok: 'إرسال البلاغ' });
+  if (!r) return;
+  try { await rpc('report_add', { p_kind: 'job', p_target: JOB.id, p_reason: r }); toast('وصلنا بلاغك، شكرا لك', 'ok'); } catch (e) { fail(e); }
+};
+
+/* ====== post job ====== */
+const PD0 = () => ({ step: 1, svc: null, title: '', descr: '', area: (S.me && S.me.area && S.me.area !== 'عن بعد') ? S.me.area : '', when: 'اليوم', urgent: false, bmode: 'offers', bmin: 50, bmax: 100, pay: 'any', invite: null, done: null });
+let PD = PD0();
+route(/^\/post$/, async ctx => {
+  if (ctx.q.fresh || PD.done) PD = PD0();
+  PICKQ = '';
+  if (ctx.q.svc && svc(ctx.q.svc).slug === ctx.q.svc && S.services.some(s => s.slug === ctx.q.svc)) { PD.svc = ctx.q.svc; if (PD.step === 1) PD.step = 2; }
+  if (ctx.q.invite) { PD.invite = { id: ctx.q.invite, name: ctx.q.name || 'العامل' }; if (ctx.q.s && !PD.svc) { PD.svc = ctx.q.s; PD.step = 2; } }
+  return { html: '<div id="pwrap"></div>', nav: 'post', mount: () => postPaint() };
+}, { auth: true });
+
+function postPaint() {
+  const w = $('#pwrap'); if (!w) return;
+  const P = PD;
+  const bar = `<div class="top"><button class="ibtn" data-a="postback" aria-label="رجوع">${ic('back')}</button><h1>طلب جديد</h1></div><div class="wiz">${[1, 2, 3].map(i => `<i class="${i <= P.step ? 'on' : ''}"></i>`).join('')}</div>`;
+  if (P.done) {
+    w.innerHTML = `<div class="empty" style="padding-top:60px"><div class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h3>تم نشر طلبك 🎉</h3><p class="muted">أرسلنا إشعارا للعمال المناسبين. سنخبرك فور وصول أول عرض.</p>
+      <div class="wrap gap" style="width:100%;margin-top:10px"><a class="btn" href="#/job/${esc(P.done)}">عرض الطلب</a><button class="btn wa" data-a="sharenew">${ic('share', 's')} شارك على واتساب</button><a class="btn ghost" href="#/">الرئيسية</a></div></div>`;
+    confetti(); return;
+  }
+  let body = '';
+  if (P.step === 1) {
+    body = `<div class="wrap"><h2 class="h2" style="margin:12px 0 4px">شو تحتاج؟</h2><p class="muted sm">اختر نوع الخدمة، أو ابحث عنها</p></div>` +
+      svcPicker(s => `<button class="sg ${P.svc === s.slug ? 'on' : ''}" data-a="pickssvc" data-v="${esc(s.slug)}">${tileHtml(s.slug)}<span>${esc(s.name)}</span></button>`,
+        `<div class="suggest"><b>ما لقيت الخدمة؟</b><p class="sm muted">اختر «خدمة أخرى» واكتب بالعنوان شو بدك بالضبط، وبنوصّل طلبك للعمال المناسبين.</p><button class="btn sun sm" data-a="pickssvc" data-v="other">${ic('plus', 's')} خدمة أخرى</button></div>`);
+  } else if (P.step === 2) {
+    const s = svc(P.svc);
+    body = `<div class="wrap gap" style="margin-top:12px">
+      <button class="card row" data-a="changesvc" style="text-align:start">${tileHtml(P.svc)}<div class="sp"><div class="xs muted">الخدمة</div><b>${esc(s.name)}</b></div><span class="badge soft">تغيير</span></button>
+      ${P.invite ? `<div class="banner teal">${ic('users')}<span>سيصل الطلب مباشرة إلى <b>${esc(P.invite.name)}</b> وأيضا لباقي العمال.</span><button data-a="rminvite" style="margin-inline-start:auto" aria-label="إزالة">${ic('close', 's')}</button></div>` : ''}
+      ${P.svc === 'other' ? `<div class="banner teal">${ic('info')}<span>اكتب اسم الخدمة بوضوح في العنوان (مثال: تطريز ثوب فلاحي، نصب خيمة 4×6)، وسنوصله للعمال المناسبين.</span></div>` : ''}
+      <div class="field"><label for="p-t">${P.svc === 'other' ? 'شو الخدمة اللي بدك إياها؟' : 'عنوان الطلب'}</label><input class="inp" id="p-t" maxlength="90" placeholder="${esc(P.svc === 'other' ? 'مثال: تصليح بابور كاز' : (EXAMPLES[P.svc] || 'مثال: وصف مختصر للمطلوب'))}" value="${esc(P.title)}"></div>
+      <div class="field"><label for="p-d">التفاصيل (اختياري)</label><textarea class="inp" id="p-d" maxlength="600" placeholder="اكتب شو المطلوب بالتفصيل، هل المواد جاهزة، أي معلومة تساعد العامل">${esc(P.descr)}</textarea><div class="counter" id="p-dc">${P.descr.length}/600</div></div>
+      <div class="field"><span class="lbl">المنطقة</span><div class="wrapchips">${AREAS.map(a => `<button type="button" class="chip sm ${P.area === a ? 'on' : ''}" data-a="parea" data-v="${esc(a)}">${esc(a)}</button>`).join('')}</div></div>
+      <div class="field"><span class="lbl">الموعد</span><div class="wrapchips">${['اليوم', 'غدا', 'هذا الأسبوع', 'مرن'].map(a => `<button type="button" class="chip sm ${P.when === a ? 'on' : ''}" data-a="pwhen" data-v="${a}">${a}</button>`).join('')}</div></div>
+      <button type="button" class="toggle ${P.urgent ? 'on' : ''}" data-a="purgent" role="switch" aria-checked="${P.urgent}"><span class="sp"><b>${ic('bolt', 's')} مستعجل</b><div class="hint">يظهر طلبك بشارة مميزة للعمال</div></span><span class="sw"></span></button>
+      <button class="btn" data-a="pnext2">التالي</button></div>`;
+  } else {
+    const s = svc(P.svc);
+    body = `<div class="wrap gap" style="margin-top:12px">
+      <div class="field"><span class="lbl">الميزانية</span><div class="seg" style="margin:0"><button type="button" class="${P.bmode === 'offers' ? 'on' : ''}" data-a="pbmode" data-v="offers">حسب العروض</button><button type="button" class="${P.bmode === 'fixed' ? 'on' : ''}" data-a="pbmode" data-v="fixed">أحدد ميزانية</button></div></div>
+      ${P.bmode === 'fixed' ? `<div class="field"><label>من</label>${stepper('p-bmin', P.bmin, { step: 10, label: 'من' })}</div><div class="field"><label>إلى</label>${stepper('p-bmax', P.bmax, { step: 10, label: 'إلى' })}</div>` : '<p class="hint">سيقترح العمال أسعارهم وتختار الأنسب لك.</p>'}
+      <div class="field"><span class="lbl">طريقة الدفع</span><div class="row" style="gap:8px">${[['cash', 'كاش', 'cash'], ['wallet', 'محفظة', 'wallet'], ['any', 'أي طريقة', 'check']].map(p => `<button type="button" class="opt ${P.pay === p[0] ? 'on' : ''}" data-a="ppay" data-v="${p[0]}">${ic(p[2], 's')}${p[1]}</button>`).join('')}</div><p class="hint">الدفع يتم مباشرة بينك وبين العامل بعد رضاك عن الشغل.</p></div>
+      <div class="card gap"><b>ملخص طلبك</b><div class="row">${tileHtml(P.svc)}<div class="sp"><b>${esc(P.title)}</b><div class="xs muted">${esc(s.name)} · ${esc(P.area)} · ${esc(P.when)}${P.urgent ? ' · مستعجل' : ''}</div></div></div></div>
+      <button class="btn sun" data-a="ppublish">${ic('check', 's')} انشر الطلب</button></div>`;
+  }
+  w.innerHTML = bar + `<div class="page">${body}</div>`;
+  svcPickerMount(w);
+  const t = $('#p-t'); if (t) t.addEventListener('input', () => { PD.title = t.value; });
+  const d = $('#p-d'); if (d) d.addEventListener('input', () => { PD.descr = d.value; $('#p-dc').textContent = d.value.length + '/600'; });
+  const bn = $('#p-bmin'); if (bn) bn.addEventListener('input', () => { PD.bmin = parseInt(bn.value, 10) || 0; });
+  const bx = $('#p-bmax'); if (bx) bx.addEventListener('input', () => { PD.bmax = parseInt(bx.value, 10) || 0; });
+  $('#view').scrollTop = 0;
+}
+ACT.postback = () => { if (PD.done) return go('/'); if (PD.step > 1) { PD.step--; postPaint(); } else ACT.back(); };
+ACT.pickssvc = t => { PD.svc = t.dataset.v; PD.step = 2; buzz(8); postPaint(); };
+ACT.changesvc = () => { PD.step = 1; postPaint(); };
+ACT.rminvite = () => { PD.invite = null; postPaint(); };
+ACT.parea = t => { PD.area = t.dataset.v; $$('[data-a=parea]').forEach(c => c.classList.toggle('on', c === t)); buzz(6); };
+ACT.pwhen = t => { PD.when = t.dataset.v; $$('[data-a=pwhen]').forEach(c => c.classList.toggle('on', c === t)); buzz(6); };
+ACT.purgent = t => { PD.urgent = !PD.urgent; t.classList.toggle('on', PD.urgent); t.setAttribute('aria-checked', PD.urgent); buzz(8); };
+ACT.pbmode = t => { PD.bmode = t.dataset.v; postPaint(); };
+ACT.ppay = t => { PD.pay = t.dataset.v; $$('[data-a=ppay]').forEach(c => c.classList.toggle('on', c === t)); buzz(6); };
+ACT.pnext2 = () => {
+  PD.title = ($('#p-t').value || '').trim(); PD.descr = $('#p-d').value;
+  if (PD.title.length < 5) { $('#p-t').classList.add('err'); $('#p-t').focus(); return toast('اكتب عنوانا واضحا (5 أحرف على الأقل)', 'bad'); }
+  if (!PD.area) return toast('اختر المنطقة', 'bad');
+  PD.step = 3; postPaint();
+};
+ACT.ppublish = t => busy(t, async () => {
+  const fx = PD.bmode === 'fixed';
+  if (fx && PD.bmin > PD.bmax) return toast('الحد الأدنى أكبر من الأعلى', 'bad');
+  try {
+    const r = await rpc('job_create', { p_service: PD.svc, p_title: PD.title, p_descr: PD.descr || null, p_area: PD.area, p_bmin: fx ? PD.bmin : null, p_bmax: fx ? PD.bmax : null, p_when: PD.when, p_pay: PD.pay, p_urgent: PD.urgent, p_invited: PD.invite ? PD.invite.id : null });
+    buzz([30, 40, 30]); const saved = { title: PD.title, area: PD.area, fx, bmin: PD.bmin, bmax: PD.bmax };
+    PD = PD0(); PD.done = r.id; PD.last = saved; postPaint();
+  } catch (e) { fail(e); }
+});
+ACT.sharenew = () => {
+  const l = PD.last || {};
+  const text = `أحتاج خدمة على «شغلة» 🛠️\n${l.title || ''}\n📍 ${l.area || ''}\nقدّم عرضك عبر شغلة:\n${APP_URL}${PD.done ? '#/job/' + PD.done : ''}`;
+  if (navigator.share) navigator.share({ text }).catch(() => {}); else window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+};
+
+/* ====== orders ====== */
+let OT = 'jobs';
+route(/^\/orders$/, async ctx => {
+  ctx.paint({ html: topbar('طلباتي', { back: false }) + skeletons(3), nav: 'orders' });
+  const tabs = `<div class="seg"><button class="${OT === 'jobs' ? 'on' : ''}" data-a="otab" data-v="jobs">طلباتي</button><button class="${OT === 'offers' ? 'on' : ''}" data-a="otab" data-v="offers">عروضي</button></div>`;
+  let body;
+  if (OT === 'jobs') {
+    const jobs = await rpc('my_jobs');
+    body = jobs.length ? `<div class="list" style="margin-top:12px">${jobs.map(j => `<a class="jcard" href="#/job/${esc(j.id)}" style="flex-direction:column;gap:8px"><div class="row" style="width:100%;align-items:flex-start">${tileHtml(j.service)}<div class="sp"><div class="jtitle">${esc(j.title)}</div><div class="jmeta"><span>${ic('pin', 's')}${esc(j.area)}</span><span>${ic('clock', 's')}${ago(j.at)}</span></div></div>${statusBadge(j.status)}</div>
+        ${progHtml(j.status)}
+        ${j.status === 'open' ? `<div class="row sm"><span class="badge ${j.offers ? 'solid' : 'gray'}">${j.offers} ${j.offers === 1 ? 'عرض' : 'عروض'}</span><span class="muted">${j.offers ? 'اضغط لمراجعة العروض' : 'بانتظار العروض'}</span></div>` : ''}
+        ${j.status === 'assigned' ? `<div class="row sm" style="background:var(--sun-soft);color:var(--sun-ink2);border-radius:12px;padding:6px 10px;width:100%">🔑 رمز الإنجاز: <b class="ltr" style="font-size:18px;letter-spacing:3px">${esc(j.code)}</b><span class="sp"></span><span>${esc(j.wname || '')}</span></div>` : ''}
+        ${j.status === 'done' && !j.reviewed ? `<div class="badge sun">قيّم العامل ⭐</div>` : ''}</a>`).join('')}</div>`
+      : empty('ما نشرت أي طلب بعد', 'اطلب أي خدمة وسيصلك عروض من عمال موثّقين', '<a class="btn sun sm" href="#/post">انشر أول طلب</a>');
+  } else {
+    if (!isWorker()) {
+      const st = S.me && S.me.worker && S.me.worker.status;
+      body = empty(st === 'pending' ? 'حسابك قيد المراجعة' : 'العروض للعمّال', st === 'pending' ? 'ستظهر عروضك هنا بعد الموافقة على حسابك.' : 'انضم كعامل لتقدّم عروضك على الطلبات وتتابعها من هنا.', st === 'pending' ? '' : '<a class="btn sun sm" href="#/join">انضم كعامل</a>');
+    } else {
+      const offers = await rpc('my_offers');
+      const OS = { sent: ['بانتظار الرد', 'sun'], accepted: ['تم قبولك ✅', 'ok'], rejected: ['لم يُختر', 'gray'], withdrawn: ['مسحوب', 'gray'] };
+      body = offers.length ? `<div class="list" style="margin-top:12px">${offers.map(o => `<a class="jcard" href="#/job/${esc(o.job.id)}" style="flex-direction:column;gap:8px"><div class="row" style="width:100%;align-items:flex-start">${tileHtml(o.job.service)}<div class="sp"><div class="jtitle">${esc(o.job.title)}</div><div class="jmeta"><span>${ic('pin', 's')}${esc(o.job.area)}</span><span>${ago(o.at)}</span></div></div><span class="badge ${OS[o.status][1]}">${OS[o.status][0]}</span></div>
+          <div class="row"><span class="price">${o.price} ₪</span>${o.status === 'accepted' && o.job.status === 'assigned' ? '<span class="badge sun">أدخل رمز الإنجاز بعد التنفيذ</span>' : ''}${o.job.status === 'done' && o.status === 'accepted' ? '<span class="badge ok">منجز</span>' : ''}</div>
+          ${o.contact ? `<div class="row sm"><span class="muted">الزبون:</span><b>${esc(o.contact.name)}</b><span class="ltr">${esc(o.contact.phone)}</span></div>` : ''}</a>`).join('')}</div>`
+        : empty('لم تقدّم عروضا بعد', 'تصفّح الطلبات المفتوحة وقدّم عرضك الأول', '<a class="btn sun sm" href="#/">تصفّح الطلبات</a>');
+    }
+  }
+  return { html: topbar('طلباتي', { back: false }) + tabs + body, nav: 'orders' };
+}, { auth: true });
+ACT.otab = t => { OT = t.dataset.v; render(); };
+
+/* ====== image helpers ====== */
+async function loadImg(file) {
+  if (window.createImageBitmap) { try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) {} }
+  return new Promise((res, rej) => {
+    const u = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { URL.revokeObjectURL(u); res(im); }; im.onerror = () => { URL.revokeObjectURL(u); rej(new Error('img')); }; im.src = u;
+  });
+}
+function jpeg(img, sx, sy, sw, sh, w, h, q, maxLen) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.imageSmoothingQuality = 'high';
+  x.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+  let out = c.toDataURL('image/jpeg', q);
+  while (out.length > maxLen && q > 0.3) { q -= 0.08; out = c.toDataURL('image/jpeg', q); }
+  return out;
+}
+async function makeAvatar(file) {
+  const img = await loadImg(file), W = img.width || img.naturalWidth, H = img.height || img.naturalHeight;
+  const side = Math.min(W, H), sx = (W - side) / 2, sy = (H - side) / 2;
+  return { avatar: jpeg(img, sx, sy, side, side, 320, 320, .76, 110000), thumb: jpeg(img, sx, sy, side, side, 96, 96, .7, 15000) };
+}
+async function makeWork(file) {
+  const img = await loadImg(file), W = img.width || img.naturalWidth, H = img.height || img.naturalHeight, k = Math.min(1, 800 / Math.max(W, H));
+  return jpeg(img, 0, 0, W, H, Math.round(W * k), Math.round(H * k), .72, 230000);
+}
+function pickFile(multi) {
+  return new Promise(res => {
+    const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; if (multi) i.multiple = true;
+    i.style.display = 'none'; document.body.appendChild(i);
+    i.onchange = () => { const f = Array.from(i.files || []); i.remove(); res(f); };
+    i.addEventListener('cancel', () => { i.remove(); res([]); });
+    i.click();
+  });
+}
+
+/* ====== worker profile ====== */
+let WP = null;
+route(/^\/worker\/([0-9a-f-]{36})$/, async ctx => {
+  ctx.paint({ html: topbar('') + skeletons(2, 'w'), nonav: true });
+  const w = await rpc('worker_get', { p_id: ctx.params[0] });
+  WP = w;
+  const me = S.me && S.me.id === w.id;
+  const av = safeImg(w.avatar) || safeImg(w.thumb);
+  const photos = (w.photos || []).map(safeImg).filter(Boolean);
+  const stat = (v, l) => `<div class="card" style="padding:8px 6px;text-align:center"><div class="h2" style="color:var(--primary);line-height:1.2">${v}</div><div class="xs muted">${l}</div></div>`;
+  const reviews = (w.reviews || []).length
+    ? w.reviews.map(r => `<div class="card gap" style="padding:12px"><div class="row"><span class="av sm" style="background:var(--teal-soft);color:var(--primary);font-family:var(--f-body);font-weight:700">${initial(r.who)}</span><b class="sp">${esc(r.who)}</b><span class="stars">${ic('star', 'fill')} ${r.stars} / 5</span></div>${r.body ? `<p class="sm" style="line-height:1.6">${esc(r.body)}</p>` : ''}<div class="xs muted">${esc(r.job)} · ${ago(r.at)}</div></div>`).join('')
+    : '<p class="muted sm">لا توجد آراء بعد — سيظهر هنا تقييم الزبائن بعد إنجاز الطلبات.</p>';
+  const statusNote = me && w.status !== 'approved' ? `<div class="banner ${w.status === 'pending' ? '' : 'bad'}" style="margin:0 16px 12px">${ic('info')}<span>${w.status === 'pending' ? 'ملفك قيد المراجعة، لن يظهر للناس قبل الموافقة.' : w.status === 'rejected' ? 'لم تتم الموافقة على ملفك — عدّله وأعد الإرسال.' : 'ملفك غير نشط حاليا.'}</span></div>` : '';
+  const head = `<div style="background:var(--deep);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 20px;border-radius:0 0 30px 30px;text-align:center">
+      <div class="row"><button class="ibtn" data-a="back" aria-label="رجوع" style="background:rgba(255,255,255,.14);border:0;color:#fff">${ic('back')}</button><span class="sp"></span>${me ? '' : `<button class="ibtn" data-a="reportworker" aria-label="إبلاغ" style="background:rgba(255,255,255,.14);border:0;color:#fff">${ic('flag')}</button>`}</div>
+      <div style="margin-top:-10px;display:flex;flex-direction:column;align-items:center;gap:6px">
+        <span class="av lg" ${av ? `data-a="zoomav"` : ''} style="${av ? '' : `background:hsl(${hue(w.name)} 42% 34%)`}">${av ? `<img alt="" src="${av}">` : initial(w.name)}</span>
+        <div class="row" style="justify-content:center;flex-wrap:wrap"><h1 style="font-family:var(--f-head);font-weight:400;font-size:30px;line-height:1.3">${esc(w.name)}</h1>
+          ${w.status === 'approved' ? `<span class="badge" style="background:rgba(255,255,255,.18);color:#fff">${ic('check', 's')} موثّق</span>` : ''}${w.demo ? '<span class="badge gray">نموذج</span>' : ''}</div>
+        <div style="color:#BFE0DE">${(w.services || []).map(s => s === 'other' ? esc(w.other || 'أخرى') : esc(svc(s).name)).join(' · ')} ${w.area ? '· ' + esc(w.area) : ''}</div>
+        ${w.available ? '<span class="badge ok">متاح الآن</span>' : '<span class="badge gray">غير متاح حاليا</span>'}</div></div>`;
+  const body = `<div class="wrap gap" style="margin-top:14px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">${stat(w.count > 0 ? Number(w.rating).toFixed(1) : '—', 'التقييم')}${stat(w.done, 'طلب منجز')}${stat(w.exp != null ? w.exp : '—', 'سنة خبرة')}</div>
+      ${w.hours ? `<div class="banner">${ic('sun')}<div><b>أوقات العمل</b><div style="font-weight:600">${esc(w.hours)}</div><div class="xs">قد تتغير حسب الكهرباء والإنترنت.</div></div></div>` : ''}
+      ${w.bio ? `<div class="card gap"><b>نبذة</b><p style="line-height:1.7">${esc(w.bio)}</p>${w.cert ? `<div class="row sm">${ic('shield', 's')}<b>المؤهل:</b> ${esc(w.cert)}</div>` : ''}</div>` : ''}
+      <div class="gap"><b>يشتغل في</b><div class="wrapchips">${(w.services || []).map(s => s === 'other' ? (w.other ? `<span class="chip">${emo(s)} ${esc(w.other)}</span>` : '') : `<a class="chip" href="#/svc/${esc(s)}">${emo(s)} ${esc(svc(s).name)}</a>`).join('')}</div></div>
+      ${photos.length ? `<div class="gap"><b>صور من الأعمال</b><div class="gal">${photos.map((p, i) => `<button data-a="zoomph" data-i="${i}" aria-label="صورة ${i + 1}"><img alt="" src="${p}" loading="lazy"></button>`).join('')}</div></div>` : ''}
+      <div class="gap"><b>آراء الزبائن</b>${reviews}</div></div>`;
+  const cta = me
+    ? `<div class="sticky-cta"><a class="btn" href="#/join">${ic('edit', 's')} تعديل ملفي</a></div>`
+    : (w.status === 'approved' ? `<div class="sticky-cta"><a class="btn sun" href="#/post?invite=${esc(w.id)}&name=${encodeURIComponent(w.name)}&s=${esc((w.services || [])[0] || '')}">${ic('plus', 's')} ادعُه لطلبك</a></div>` : '');
+  return { html: head + '<div style="height:0"></div>' + statusNote + body + cta, nonav: true };
+});
+ACT.zoomav = () => { const a = safeImg(WP && WP.avatar); if (a) lightbox(a); };
+ACT.zoomph = t => { const p = safeImg((WP.photos || [])[+t.dataset.i]); if (p) lightbox(p); };
+ACT.reportworker = async () => {
+  if (!S.token) return loginTo('/worker/' + WP.id);
+  const r = await promptSheet({ title: 'إبلاغ عن العامل', text: 'اكتب سبب البلاغ باختصار.', ph: 'سبب البلاغ', danger: true, ok: 'إرسال البلاغ' });
+  if (!r) return;
+  try { await rpc('report_add', { p_kind: 'worker', p_target: WP.id, p_reason: r }); toast('وصلنا بلاغك، شكرا لك', 'ok'); } catch (e) { fail(e); }
+};
+
+/* ====== join as worker (wizard) ====== */
+const JD0 = () => ({ step: 0, svcs: [], other: '', cert: '', bio: '', exp: '', hours: '', area: '', avatar: null, thumb: null, avatarNew: false, photos: [], photosNew: false, agree: false, status: null, note: null, loaded: false, sent: false });
+let JD = JD0();
+const HOURS_PRESETS = ['السبت – الخميس', 'كل أيام الأسبوع', 'صباحا', 'مساء', '8 ص – 4 م', '4 م – 9 م'];
+route(/^\/join$/, async ctx => {
+  ctx.paint({ html: topbar('انضم كعامل') + skeletons(2, 'w'), nonav: true });
+  await refreshMe();
+  JD = JD0(); PICKQ = '';
+  const wk = S.me && S.me.worker;
+  if (wk) {
+    const m = await rpc('worker_me');
+    if (m) Object.assign(JD, { svcs: m.services || [], other: m.other || '', cert: m.cert || '', bio: m.bio || '', exp: m.exp == null ? '' : m.exp, hours: m.hours || '', area: m.area || '', avatar: safeImg(m.avatar), thumb: safeImg(m.thumb), photos: (m.photos || []).map(safeImg).filter(Boolean), status: m.status, note: m.note, loaded: true });
+    JD.step = m && (m.status === 'pending' || m.status === 'suspended') ? 'status' : 1;
+    if (m && m.status === 'draft') JD.step = 0;
+  }
+  if (!JD.area && S.me.area) JD.area = S.me.area;
+  return { html: '<div id="jwrap"></div>', nonav: true, mount: () => joinPaint() };
+}, { auth: true });
+
+function joinPaint() {
+  const w = $('#jwrap'); if (!w) return;
+  const J = JD;
+  const bar = `<div class="top"><button class="ibtn" data-a="joinback" aria-label="رجوع">${ic('back')}</button><h1>${J.status === 'approved' ? 'تعديل ملفي' : 'انضم كعامل'}</h1></div>` + (typeof J.step === 'number' && J.step > 0 ? `<div class="wiz">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= J.step ? 'on' : ''}"></i>`).join('')}</div>` : '');
+  let body = '';
+  if (J.sent) {
+    body = `<div class="empty" style="padding-top:50px"><div class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><h3>وصل طلبك 🎉</h3><p class="muted">سنراجع بياناتك وصورتك، وعادة يكون القرار خلال 24 ساعة. ستصلك رسالة هنا في الإشعارات.</p><a class="btn" href="#/account">حسابي</a></div>`;
+  } else if (J.step === 'status') {
+    body = J.status === 'suspended'
+      ? `<div class="wrap" style="margin-top:12px"><div class="banner bad">${ic('alert')}<span>${esc(J.note || 'حسابك موقوف حاليا.')}</span></div></div>`
+      : `<div class="empty" style="padding-top:40px"><span class="tile lg">⏳</span><h3>طلبك قيد المراجعة</h3><p class="muted">نراجع ملفك الآن. إن أردت تعديل شيء قبل القرار يمكنك ذلك.</p><button class="btn soft sm" data-a="joinedit">تعديل الطلب</button></div>`;
+  } else if (J.step === 0) {
+    body = `<div class="wrap gap" style="margin-top:8px">
+      <div class="card gap" style="background:linear-gradient(135deg,var(--deep),var(--primary));color:#fff;border:0"><h2 class="h2">اكسب من مهارتك 💪</h2><p style="opacity:.9">استقبل طلبات حقيقية قريبة منك، وقدّم عروضك، وابنِ سمعتك بتقييمات الزبائن.</p></div>
+      <div class="card gap"><b>ما الذي نحتاجه منك؟</b><ul class="req" style="margin:0;padding-inline-start:20px">
+        <li>صورة شخصية واضحة لوجهك</li><li>الخدمات التي تتقنها (حتى 5) — وإن لم تجد مهنتك اكتبها بنفسك</li><li>نبذة عن خبرتك وسنوات العمل</li><li>أوقات عملك ومنطقتك</li><li>مؤهل أو شهادة للخدمات الصحية (علاج طبيعي، تمريض، حجامة…)</li><li>صور من أعمالك السابقة (اختياري لكنها ترفع فرصك)</li></ul></div>
+      <div class="banner teal">${ic('shield')}<span>نراجع كل طلب يدويا قبل التفعيل حفاظا على ثقة الناس، وعادة يكون القرار خلال 24 ساعة.</span></div>
+      <button class="btn sun" data-a="joinnext">ابدأ التسجيل</button></div>`;
+  } else if (J.step === 1) {
+    const im = J.avatar;
+    body = `<div class="wrap gap" style="margin-top:12px">${J.note && J.status === 'rejected' ? `<div class="banner bad">${ic('alert')}<span><b>سبب عدم الموافقة:</b> ${esc(J.note)}</span></div>` : ''}
+      <h2 class="h2">صورتك الشخصية</h2><p class="muted sm">صورة واضحة لوجهك بإضاءة جيدة. الزبائن يثقون أكثر بالعامل الذي يظهر وجهه.</p>
+      <button class="photo-pick ${im ? 'has' : ''}" data-a="pickavatar" aria-label="اختيار صورة">${im ? `<img alt="" src="${im}">` : `${ic('camera', 'l')}<b>اضغط لإضافة صورة</b><span class="xs">التقط صورة أو اختر من المعرض</span>`}</button>
+      ${im ? `<button class="btn soft sm" data-a="pickavatar" style="align-self:center">${ic('refresh', 's')} تغيير الصورة</button>` : ''}
+      <button class="btn" data-a="joinnext">التالي</button></div>`;
+  } else if (J.step === 2) {
+    const health = J.svcs.some(s => svc(s).grp === 'health');
+    const hasOther = J.svcs.includes('other');
+    body = `<div class="wrap gap" style="margin-top:12px"><h2 class="h2">ما الذي تتقنه؟</h2><p class="muted sm">اختر حتى 5 خدمات (${J.svcs.length}/5). مهنتك مش موجودة؟ اختر «خدمة أخرى» واكتبها.</p></div>` +
+      svcPicker(s => `<button class="sg ${J.svcs.includes(s.slug) ? 'on' : ''}" data-a="jsvc" data-v="${esc(s.slug)}">${tileHtml(s.slug)}<span>${esc(s.name)}</span></button>`) +
+      `<div class="wrap gap" style="margin-top:14px">${hasOther ? `<div class="field"><label for="j-other">اكتب مهنتك أو حرفتك</label><input class="inp" id="j-other" maxlength="80" placeholder="مثال: صيانة بوابير كاز، تنجيد كنب، صناعة صابون" value="${esc(J.other)}"><div class="hint">تظهر في ملفك، ونراجعها لإضافتها كخدمة مستقلة في القائمة.</div></div>` : ''}
+      ${health ? `<div class="field"><label for="j-cert">المؤهل / الشهادة (مطلوب للخدمات الصحية)</label><input class="inp" id="j-cert" maxlength="120" placeholder="مثال: بكالوريوس علاج طبيعي — أو دورة معتمدة في الحجامة" value="${esc(J.cert)}"></div><div class="banner teal">${ic('info')}<span>قد نتواصل معك هاتفيا للتحقق من المؤهل.</span></div>` : ''}</div>
+      <div class="sticky-cta"><button class="btn" data-a="joinnext">التالي (${J.svcs.length}/5)</button></div>`;
+  } else if (J.step === 3) {
+    body = `<div class="wrap gap" style="margin-top:12px"><h2 class="h2">عن خبرتك</h2>
+      <div class="field"><label for="j-bio">نبذة عنك وعن شغلك</label><textarea class="inp" id="j-bio" maxlength="400" placeholder="مثال: سبّاك بخبرة 10 سنوات في تمديدات المطابخ والحمامات، ألتزم بالمواعيد وأضمن الشغل.">${esc(J.bio)}</textarea><div class="counter" id="j-bc">${J.bio.length}/400 (20 على الأقل)</div></div>
+      <div class="field"><label>سنوات الخبرة</label>${stepper('j-exp', J.exp === '' ? 1 : J.exp, { step: 1, min: 0, label: 'سنوات الخبرة' }).replace('<b class="muted">₪</b>', '<b class="muted">سنة</b>')}</div>
+      <div class="field"><label for="j-hours">أوقات العمل</label><input class="inp" id="j-hours" maxlength="60" placeholder="مثال: السبت – الخميس، 9 ص – 3 م" value="${esc(J.hours)}"><div class="wrapchips">${HOURS_PRESETS.map(h => `<button type="button" class="chip sm" data-a="jhours" data-v="${h}">${h}</button>`).join('')}</div></div>
+      <div class="field"><span class="lbl">منطقتك الأساسية</span><div class="wrapchips">${AREAS.map(a => `<button type="button" class="chip sm ${J.area === a ? 'on' : ''}" data-a="jarea" data-v="${esc(a)}">${esc(a)}</button>`).join('')}</div></div>
+      <button class="btn" data-a="joinnext">التالي</button></div>`;
+  } else if (J.step === 4) {
+    body = `<div class="wrap gap" style="margin-top:12px"><h2 class="h2">صور من أعمالك</h2><p class="muted sm">اختياري، لكن الصور الحقيقية ترفع ثقة الزبائن (حتى 6 صور).</p>
+      <div class="gal">${J.photos.map((p, i) => `<div class="ph"><img alt="" src="${p}"><button data-a="jrmph" data-i="${i}" aria-label="حذف">${ic('close', 's')}</button></div>`).join('')}${J.photos.length < 6 ? `<button class="add" data-a="jaddph">${ic('plus')}<span>إضافة</span></button>` : ''}</div>
+      <button class="btn" data-a="joinnext">${J.photos.length ? 'التالي' : 'تخطي'}</button></div>`;
+  } else if (J.step === 5) {
+    body = `<div class="wrap gap" style="margin-top:12px"><h2 class="h2">راجع بياناتك</h2>
+      <div class="card gap"><div class="row">${avatar(S.me.name, J.thumb, 'sm')}<div class="sp"><b>${esc(S.me.name)}</b><div class="xs muted">${J.svcs.map(s => s === 'other' ? esc(J.other || 'أخرى') : esc(svc(s).name)).join(' · ')}</div></div></div>
+        <div class="sm"><b>الخبرة:</b> ${esc(J.exp)} سنة · <b>المنطقة:</b> ${esc(J.area)}</div><div class="sm"><b>الأوقات:</b> ${esc(J.hours)}</div>${J.cert ? `<div class="sm"><b>المؤهل:</b> ${esc(J.cert)}</div>` : ''}<p class="sm" style="line-height:1.7">${esc(J.bio)}</p>${J.photos.length ? `<div class="xs muted">${J.photos.length} صور أعمال</div>` : ''}</div>
+      ${J.status === 'approved' ? '<div class="banner teal">' + ic('info') + '<span>إضافة خدمة جديدة تحتاج مراجعة قصيرة. باقي التعديلات تُطبَّق مباشرة.</span></div>' : ''}
+      <label class="check"><input type="checkbox" id="j-ag" ${J.agree ? 'checked' : ''}><span>أتعهد بصحة بياناتي وصورتي، وبالأمانة في العمل، وبعدم طلب مبالغ مقدما قبل إنجاز الشغل، وأوافق على مراجعة حسابي.</span></label>
+      <button class="btn sun" data-a="joinsend">${J.status === 'approved' ? 'حفظ التعديلات' : 'أرسل للمراجعة'}</button></div>`;
+  }
+  w.innerHTML = bar + `<div class="page">${body}</div>`;
+  const bio = $('#j-bio'); if (bio) bio.addEventListener('input', () => { JD.bio = bio.value; $('#j-bc').textContent = bio.value.length + '/400 (20 على الأقل)'; });
+  const hrs = $('#j-hours'); if (hrs) hrs.addEventListener('input', () => { JD.hours = hrs.value; });
+  const ex = $('#j-exp'); if (ex) ex.addEventListener('input', () => { JD.exp = ex.value === '' ? '' : Math.max(0, Math.min(60, parseInt(ex.value, 10) || 0)); });
+  const ct = $('#j-cert'); if (ct) ct.addEventListener('input', () => { JD.cert = ct.value; });
+  const ot = $('#j-other'); if (ot) ot.addEventListener('input', () => { JD.other = ot.value; });
+  svcPickerMount(w);
+  const ag = $('#j-ag'); if (ag) ag.addEventListener('change', () => { JD.agree = ag.checked; });
+  $('#view').scrollTop = 0;
+}
+ACT.joinback = () => { if (JD.sent || JD.step === 'status' || JD.step === 0 || JD.step === 1 && !JD.loaded) return ACT.back(); if (typeof JD.step === 'number' && JD.step > 1) { JD.step--; joinPaint(); } else ACT.back(); };
+ACT.joinedit = () => { JD.step = 1; joinPaint(); };
+ACT.pickavatar = async () => {
+  const f = (await pickFile(false))[0]; if (!f) return;
+  try { toast('جارٍ تجهيز الصورة…'); const r = await makeAvatar(f); JD.avatar = r.avatar; JD.thumb = r.thumb; JD.avatarNew = true; joinPaint(); buzz(15); }
+  catch (e) { toast('تعذّر قراءة الصورة، جرّب صورة أخرى', 'bad'); }
+};
+ACT.jsvc = t => {
+  const s = t.dataset.v, i = JD.svcs.indexOf(s);
+  if (i >= 0) JD.svcs.splice(i, 1); else { if (JD.svcs.length >= 5) return toast('الحد الأقصى 5 خدمات', 'bad'); JD.svcs.push(s); }
+  buzz(8); const y = $('#view').scrollTop; joinPaint(); $('#view').scrollTop = y;
+};
+ACT.jhours = t => { JD.hours = t.dataset.v; const i = $('#j-hours'); if (i) i.value = JD.hours; };
+ACT.jarea = t => { JD.area = t.dataset.v; $$('[data-a=jarea]').forEach(c => c.classList.toggle('on', c === t)); buzz(6); };
+ACT.jaddph = async () => {
+  const fs = await pickFile(true); if (!fs.length) return;
+  toast('جارٍ تجهيز الصور…');
+  for (const f of fs.slice(0, 6 - JD.photos.length)) { try { JD.photos.push(await makeWork(f)); JD.photosNew = true; } catch (e) {} }
+  joinPaint();
+};
+ACT.jrmph = t => { JD.photos.splice(+t.dataset.i, 1); JD.photosNew = true; joinPaint(); };
+ACT.joinnext = () => {
+  const J = JD, s = J.step;
+  if (s === 0) { J.step = 1; return joinPaint(); }
+  if (s === 1 && !J.avatar) return toast(ERR.need_photo, 'bad');
+  if (s === 2) {
+    if (!J.svcs.length) return toast(ERR.need_service, 'bad');
+    if (J.svcs.some(x => svc(x).grp === 'health') && J.cert.trim().length < 3) return toast(ERR.need_cert, 'bad');
+    if (J.svcs.includes('other') && J.other.trim().length < 3) return toast(ERR.need_other, 'bad');
+  }
+  if (s === 3) {
+    if (J.bio.trim().length < 20) return toast(ERR.need_bio, 'bad');
+    if (J.exp === '' || J.exp == null) return toast(ERR.need_exp, 'bad');
+    if (J.hours.trim().length < 3) return toast(ERR.need_hours, 'bad');
+    if (!J.area) return toast(ERR.need_area, 'bad');
+  }
+  J.step = s + 1; buzz(8); joinPaint();
+};
+ACT.joinsend = t => busy(t, async () => {
+  if (!JD.agree) return toast('وافق على التعهد أولا', 'bad');
+  try {
+    const r = await rpc('worker_apply', {
+      p_services: JD.svcs, p_bio: JD.bio.trim(), p_exp: parseInt(JD.exp, 10) || 0, p_hours: JD.hours.trim(), p_area: JD.area, p_cert: JD.cert.trim() || null,
+      p_avatar: JD.avatarNew ? JD.avatar : null, p_thumb: JD.avatarNew ? JD.thumb : null, p_photos: JD.photosNew ? JD.photos : null, p_submit: true, p_other: JD.svcs.includes('other') ? JD.other.trim() : null
+    });
+    await refreshMe(); buzz([30, 40, 30]);
+    if (r.status === 'pending') { JD.sent = true; confetti(); joinPaint(); }
+    else { toast('تم حفظ التعديلات', 'ok'); go('/account'); }
+  } catch (e) { fail(e); }
+});
+
+/* ====== admin ====== */
+let AD = { tab: 'pending', wst: 'approved', cache: {} };
+route(/^\/admin$/, async ctx => {
+  if (!S.me || !S.me.admin) { await refreshMe(); if (!S.me || !S.me.admin) { toast('هذه الصفحة للإدارة فقط', 'bad'); replace('/account'); return null; } }
+  const tabs = [['pending', 'الطلبات'], ['reports', 'البلاغات'], ['workers', 'العمّال'], ['services', 'الخدمات'], ['overview', 'نظرة عامة']];
+  const bar = `<div class="chips" style="padding-top:4px">${tabs.map(t => `<button class="chip ${AD.tab === t[0] ? 'on' : ''}" data-a="adtab" data-v="${t[0]}">${t[1]}${t[0] === 'pending' && AD.cache.pending ? ` <span class="badge solid">${AD.cache.pending}</span>` : ''}</button>`).join('')}</div>`;
+  ctx.paint({ html: topbar('لوحة الإدارة') + bar + skeletons(3, 'w'), nav: 'account' });
+  let body = '';
+  if (AD.tab === 'overview') body = await adOverview();
+  else if (AD.tab === 'pending') body = await adPending();
+  else if (AD.tab === 'reports') body = await adReports();
+  else if (AD.tab === 'services') body = await adServices();
+  else body = await adWorkers();
+  const bar2 = `<div class="chips" style="padding-top:4px">${tabs.map(t => `<button class="chip ${AD.tab === t[0] ? 'on' : ''}" data-a="adtab" data-v="${t[0]}">${t[1]}${t[0] === 'pending' && AD.cache.pending ? ` <span class="badge solid">${AD.cache.pending}</span>` : ''}</button>`).join('')}</div>`;
+  return { html: topbar('لوحة الإدارة') + bar2 + body, nav: 'account' };
+}, { auth: true });
+ACT.adtab = t => { AD.tab = t.dataset.v; render(); };
+
+async function adOverview() {
+  const o = await rpc('admin_overview'); AD.cache.pending = o.pending;
+  const st = (v, l, c) => `<div class="card" style="text-align:center;padding:12px 6px"><div class="h2" style="color:${c || 'var(--primary)'}">${v}</div><div class="xs muted">${l}</div></div>`;
+  return `<div class="wrap gap" style="margin-top:8px"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      ${st(o.pending, 'طلبات انضمام', o.pending ? 'var(--sun)' : '')}${st(o.approved, 'عمال معتمدون')}${st(o.users, 'مستخدمون')}${st(o.open_jobs, 'طلبات مفتوحة')}${st(o.done_jobs, 'طلبات منجزة')}${st(o.reports, 'بلاغات', o.reports ? 'var(--danger)' : '')}</div>
+    <button class="toggle ${o.demo ? 'on' : ''}" data-a="demotoggle" role="switch" aria-checked="${o.demo}"><span class="sp"><b>عرض البيانات التجريبية</b><div class="hint">طلبات وعمّال «نموذج» تملأ التطبيق في البداية. أوقفها عندما تأتي بيانات حقيقية.</div></span><span class="sw"></span></button>
+    <div class="card gap"><b>إضافة مشرف</b><p class="hint">أدخل رقم جوال مستخدم مسجّل ليصبح مشرفا.</p><input class="inp" id="ad-ph" type="tel" dir="ltr" style="text-align:right" placeholder="059xxxxxxx"><button class="btn soft sm" data-a="addadmin">إضافة</button></div></div>`;
+}
+ACT.demotoggle = async t => {
+  const on = !t.classList.contains('on');
+  try { await rpc('admin_set_demo', { p_on: on }); toast(on ? 'تم عرض البيانات التجريبية' : 'تم إخفاء البيانات التجريبية', 'ok'); render(); } catch (e) { fail(e); }
+};
+ACT.addadmin = t => busy(t, async () => {
+  try { await rpc('admin_add', { p_phone: $('#ad-ph').value }); toast('تمت إضافة المشرف', 'ok'); $('#ad-ph').value = ''; } catch (e) { fail(e); }
+});
+
+function adWorkerCard(w, pending) {
+  const av = safeImg(w.avatar) || safeImg(w.thumb), photos = (w.photos || []).map(safeImg).filter(Boolean);
+  return `<div class="card gap" data-w="${esc(w.id)}"><div class="row">${av ? `<button data-a="zoomsrc" data-s="${av}" class="av lg" style="width:84px;height:84px"><img alt="" src="${av}"></button>` : avatar(w.name, w.thumb, 'lg')}
+      <div class="sp"><b style="font-size:17px">${esc(w.name)}</b><div class="row sm"><a class="ltr b" href="tel:${esc(w.phone)}" style="color:var(--primary)">${esc(w.phone)}</a></div><div class="xs muted">${w.submitted ? 'قدّم ' + ago(w.submitted) : 'سجّل ' + ago(w.joined)} · ${esc(w.area || '')}</div></div></div>
+    <div class="wrapchips">${(w.services || []).map(s => `<span class="badge">${emo(s)} ${esc(s === 'other' ? 'أخرى: ' + (w.other || '') : svc(s).name)}</span>`).join('')}<span class="badge gray">${w.exp != null ? w.exp + ' سنة خبرة' : ''}</span></div>
+    ${w.cert ? `<div class="sm">${ic('shield', 's')} <b>المؤهل:</b> ${esc(w.cert)}</div>` : ''}<div class="sm"><b>الأوقات:</b> ${esc(w.hours || '')}</div><p class="sm" style="line-height:1.6">${esc(w.bio || '')}</p>
+    ${photos.length ? `<div class="gal">${photos.map(p => `<button data-a="zoomsrc" data-s="${p}"><img alt="" src="${p}" loading="lazy"></button>`).join('')}</div>` : ''}
+    ${w.note ? `<div class="banner bad">${ic('alert')}<span>${esc(w.note)}</span></div>` : ''}
+    ${pending ? `<div class="btns"><button class="btn" data-a="adapprove" data-id="${esc(w.id)}" data-n="${esc(w.name)}">${ic('check', 's')} قبول</button><button class="btn danger" data-a="adreject" data-id="${esc(w.id)}">رفض</button></div>`
+      : (w.status === 'approved' ? `<div class="row sm">${starsRow(w.rating, w.count)}<span class="muted">${w.done} منجز</span><span class="sp"></span><button class="btn danger sm" data-a="adsuspend" data-id="${esc(w.id)}">إيقاف</button></div>`
+        : `<div class="btns"><span class="badge gray">${esc(w.status)}</span><button class="btn soft sm" data-a="adapprove" data-id="${esc(w.id)}" data-n="${esc(w.name)}">إعادة تفعيل</button></div>`)}</div>`;
+}
+ACT.zoomsrc = t => { const s = safeImg(t.dataset.s); if (s) lightbox(s); };
+async function adPending() {
+  const list = await rpc('admin_workers', { p_status: 'pending' }); AD.cache.pending = list.length;
+  return list.length ? `<div class="list" style="margin-top:8px">${list.map(w => adWorkerCard(w, true)).join('')}</div>` : empty('لا توجد طلبات معلّقة', 'كل طلبات الانضمام تمت مراجعتها 👏');
+}
+async function adWorkers() {
+  const st = AD.wst;
+  const list = await rpc('admin_workers', { p_status: st });
+  const seg = `<div class="seg">${[['approved', 'معتمدون'], ['rejected', 'مرفوضون'], ['suspended', 'موقوفون']].map(s => `<button class="${st === s[0] ? 'on' : ''}" data-a="adwst" data-v="${s[0]}">${s[1]}</button>`).join('')}</div>`;
+  return seg + (list.length ? `<div class="list" style="margin-top:12px">${list.map(w => adWorkerCard(w, false)).join('')}</div>` : empty('لا يوجد عمّال في هذه القائمة', ''));
+}
+ACT.adwst = t => { AD.wst = t.dataset.v; render(); };
+async function adReports() {
+  const list = await rpc('admin_reports');
+  if (!list.length) return empty('لا توجد بلاغات', 'كل شيء هادئ ✨');
+  return `<div class="list" style="margin-top:8px">${list.map(r => `<div class="card gap"><div class="row"><span class="badge ${r.kind === 'job' ? '' : 'sun'}">${r.kind === 'job' ? 'طلب' : 'عامل'}</span><b class="sp">${esc(r.title || '—')}</b><a class="btn soft sm" href="#/${r.kind === 'job' ? 'job' : 'worker'}/${esc(r.target)}">فتح</a></div>
+    <p class="sm" style="line-height:1.6">«${esc(r.reason)}»</p><div class="xs muted">من ${esc(r.reporter)} · ${ago(r.at)}</div>
+    <div class="btns"><button class="btn danger sm" data-a="adrep" data-id="${r.id}" data-act="hide">إخفاء</button><button class="btn danger sm" data-a="adrep" data-id="${r.id}" data-act="ban">حظر صاحبه</button><button class="btn ghost sm" data-a="adrep" data-id="${r.id}" data-act="dismiss">تجاهل</button></div></div>`).join('')}</div>`;
+}
+ACT.adrep = async t => {
+  const act = t.dataset.act;
+  if (act !== 'dismiss' && !await confirmSheet({ title: act === 'ban' ? 'حظر صاحب المحتوى؟' : 'إخفاء المحتوى؟', text: act === 'ban' ? 'سيتم إنهاء جلساته وإخفاء طلباته المفتوحة وإيقاف حسابه كعامل.' : 'سيتم إخفاء الطلب أو إيقاف العامل مؤقتا.', ok: 'تأكيد', danger: true })) return;
+  try { await rpc('admin_report_handle', { p_id: +t.dataset.id, p_action: act }); toast('تم', 'ok'); render(); } catch (e) { fail(e); }
+};
+ACT.adapprove = async t => {
+  if (!await confirmSheet({ title: 'قبول ' + t.dataset.n + '؟', text: 'سيتمكن من تقديم العروض على الطلبات وسيظهر في قائمة العمّال.', ok: 'قبول' })) return;
+  try { await rpc('admin_review_worker', { p_worker: t.dataset.id, p_decision: 'approve' }); toast('تم قبول العامل', 'ok'); confetti(); render(); } catch (e) { fail(e); }
+};
+ACT.adreject = async t => {
+  const note = await promptSheet({ title: 'سبب الرفض', text: 'سيصل هذا السبب للعامل ليعدّل ويعيد الإرسال.', ph: 'مثال: الصورة غير واضحة — أرسل صورة لوجهك بإضاءة جيدة', ok: 'رفض', danger: true });
+  if (!note) return;
+  try { await rpc('admin_review_worker', { p_worker: t.dataset.id, p_decision: 'reject', p_note: note }); toast('تم الرفض وإبلاغ العامل'); render(); } catch (e) { fail(e); }
+};
+ACT.adsuspend = async t => {
+  const note = await promptSheet({ title: 'إيقاف العامل', text: 'سبب الإيقاف (اختياري).', ph: 'السبب', ok: 'إيقاف', danger: true });
+  if (note === false) return;
+  try { await rpc('admin_review_worker', { p_worker: t.dataset.id, p_decision: 'suspend', p_note: note || null }); toast('تم إيقاف العامل'); render(); } catch (e) { fail(e); }
+};
+
+/* ====== services catalogue ====== */
+let ADS = null;
+async function adServices() {
+  ADS = await rpc('admin_services');
+  const sug = ADS.suggestions || [];
+  const srcName = { user: 'اقتراح', job: 'من طلب زبون', worker: 'من ملف عامل' };
+  const sugHtml = sug.length ? `<div class="card gap"><b>اقتراحات خدمات جديدة (${sug.length})</b>${sug.map(g => `<div class="svcrow"><div class="sp"><b>${esc(g.name)}</b><div class="xs muted">${esc(srcName[g.source] || '')}${g.who ? ' · ' + esc(g.who) : ''} · ${ago(g.at)}</div>${g.note ? `<div class="xs">${esc(g.note)}</div>` : ''}</div>
+      <button class="btn soft sm" data-a="adsvcnew" data-sug="${g.id}" data-n="${esc(g.name)}">إضافة</button><button class="btn ghost sm" data-a="adsugdismiss" data-id="${g.id}">تجاهل</button></div>`).join('')}</div>` : '';
+  const groups = svcGroups(ADS.services).map(x => `<div class="card" style="padding:4px 0"><div class="sec" style="margin:8px 12px 4px"><b>${x.name}</b></div>${x.items.map(s => `<div class="svcrow ${s.active ? '' : 'off'}"><span class="tile g-${esc(s.grp)}" aria-hidden="true">${esc(s.emoji || '🛠️')}</span><div class="sp"><b>${esc(s.name)}</b><div class="xs muted">${s.workers} عامل · ${s.jobs} طلب${s.active ? '' : ' · مخفية'}</div></div><button class="btn soft sm" data-a="adsvcedit" data-slug="${esc(s.slug)}">تعديل</button></div>`).join('')}</div>`).join('');
+  return `<div class="wrap gap" style="margin-top:8px">
+    <div class="banner teal">${ic('info')}<span>أضف أي مهنة جديدة وستظهر فورا للناس في التطبيق. الخدمة المخفية لا تظهر في القوائم، لكن العمال والطلبات القديمة عليها يبقون كما هم.</span></div>
+    <button class="btn sun" data-a="adsvcnew">${ic('plus', 's')} إضافة خدمة جديدة</button>${sugHtml}${groups}</div>`;
+}
+function adSvcSheet(s, sugId, preName) {
+  const isNew = !s;
+  s = s || { name: preName || '', grp: 'other', emoji: '🛠️', active: true };
+  return new Promise(res => {
+    openSheet(`<h3>${isNew ? 'خدمة جديدة' : 'تعديل الخدمة'}</h3><div class="gap">
+      <div class="field"><label for="sv-n">اسم الخدمة</label><input class="inp" id="sv-n" maxlength="40" value="${esc(s.name)}" placeholder="مثال: تطريز فلاحي"></div>
+      <div class="field"><label for="sv-e">رمز (إيموجي)</label><input class="inp" id="sv-e" maxlength="8" value="${esc(s.emoji || '')}" style="font-family:'Noto Color Emoji',sans-serif;font-size:22px;width:90px;text-align:center"></div>
+      <div class="field"><span class="lbl">المجال</span><div class="wrapchips" id="sv-g">${Object.keys(GROUPS).map(g => `<button type="button" class="chip sm ${s.grp === g ? 'on' : ''}" data-g="${g}">${GROUPS[g]}</button>`).join('')}</div></div>
+      ${isNew || s.slug === 'other' ? '' : `<label class="check"><input type="checkbox" id="sv-a" ${s.active ? 'checked' : ''}><span>ظاهرة للناس في التطبيق</span></label>`}
+      <div class="btns"><button class="btn" id="sv-ok">${isNew ? 'إضافة' : 'حفظ'}</button><button class="btn ghost" id="sv-no">إلغاء</button></div></div>`, el => {
+      let g = s.grp;
+      $$('#sv-g [data-g]', el).forEach(b => b.addEventListener('click', () => { g = b.dataset.g; $$('#sv-g [data-g]', el).forEach(x => x.classList.toggle('on', x === b)); }));
+      $('#sv-no', el).addEventListener('click', () => { closeSheet(); res(null); });
+      $('#sv-ok', el).addEventListener('click', async () => {
+        const n = $('#sv-n', el).value.trim(); if (n.length < 2) return toast('اكتب اسم الخدمة', 'bad');
+        const a = $('#sv-a', el);
+        try {
+          await rpc('admin_service_save', { p_slug: isNew ? null : s.slug, p_name: n, p_grp: g, p_emoji: $('#sv-e', el).value.trim() || null, p_active: a ? a.checked : true, p_suggestion: sugId || null });
+          closeSheet(); res(true);
+        } catch (e) { fail(e); }
+      });
+    });
+  });
+}
+ACT.adsvcnew = async t => {
+  if (await adSvcSheet(null, t.dataset.sug ? +t.dataset.sug : null, t.dataset.n || '')) { toast('تمت إضافة الخدمة', 'ok'); try { applyBoot(await rpc('boot')); } catch (e) {} render(); }
+};
+ACT.adsvcedit = async t => {
+  const s = (ADS.services || []).find(x => x.slug === t.dataset.slug); if (!s) return;
+  if (await adSvcSheet(s)) { toast('تم الحفظ', 'ok'); try { applyBoot(await rpc('boot')); } catch (e) {} render(); }
+};
+ACT.adsugdismiss = async t => {
+  try { await rpc('admin_suggestion_set', { p_id: +t.dataset.id, p_status: 'dismissed' }); render(); } catch (e) { fail(e); }
+};
+
+/* ====== start ====== */
+window.addEventListener('DOMContentLoaded', boot);
+
+</script>
+</body>
+</html>
