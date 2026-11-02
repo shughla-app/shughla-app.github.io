@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://shughla-app.github.io/sitemap.xml
