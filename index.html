@@ -180,6 +180,7 @@ html.dark .g-health{--c:#F0705C}html.dark .g-tech{--c:#8A98F0}html.dark .g-learn
 .btn[aria-busy=true]::after{content:"";width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-top-color:transparent;animation:spin .7s linear infinite}
 .btns{display:flex;gap:10px}
 .btns .btn{flex:1}
+.btns.nw .btn{white-space:nowrap;padding:0 12px}
 
 /* forms */
 .field{display:flex;flex-direction:column;gap:6px}
@@ -380,6 +381,10 @@ html.dark .g-build{--c:#D9A06A}html.dark .g-craft{--c:#F08AC8}html.dark .g-agri{
 .soc{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:14px;font-weight:700;font-size:13px;background:var(--teal-soft);color:var(--primary)}
 .soc.ig{background:#FCE7F1;color:#B0306A}.soc.fb{background:#E6EEFB;color:#1D5BC2}.soc.wa{background:#E3F6EA;color:#0F6B32}.soc.tt{background:#ECEDEF;color:#111418}
 html.dark .soc.ig{background:#3A1F2C;color:#F59AC4}html.dark .soc.fb{background:#1C2840;color:#8AB1F2}html.dark .soc.wa{background:#163222;color:#6FD99A}html.dark .soc.tt{background:#25292D;color:#F1F3F5}
+/* round 4: «قناة واتساب» gets the whole row under the four (five in a row don't fit 360px) */
+.soc.ch{grid-column:1/-1;flex-direction:row;justify-content:center;gap:8px}
+/* a short explanation under a menu row (notifications on the phone) */
+.menu .sp small{display:block;font-weight:500;font-size:12.5px;line-height:1.5;color:var(--muted)}
 
 </style>
 <noscript><style>.splash,#app{display:none}</style></noscript>
@@ -409,8 +414,12 @@ const SOCIAL = {
   ig: 'https://www.instagram.com/shughla.gaza/',
   fb: 'https://www.facebook.com/profile.php?id=61583762405465',
   tt: 'https://www.tiktok.com/@shughla.gaza',
-  wa: 'https://wa.me/970569190006?text=' + encodeURIComponent('مرحبا، عندي سؤال عن تطبيق شغلة')
+  wa: 'https://wa.me/970569190006?text=' + encodeURIComponent('مرحبا، عندي سؤال عن تطبيق شغلة'),
+  ch: 'https://whatsapp.com/channel/0029VbDYC9fFMqrVZ9oRP30K' /* قناة واتساب «شغلة» (the id is case-sensitive) */
 };
+/* notifications on the phone (Web Push, 10_push.js): the server's VAPID public key (base64url, from Rami).
+   Empty = the whole feature stays hidden */
+const PUSH_VAPID_PUBLIC = '';
 const AREAS = ['الرمال','تل الهوى','الشيخ رضوان','جباليا','بيت لاهيا','النصيرات','البريج','المغازي','دير البلح','الزوايدة','المواصي','خانيونس','رفح','عن بعد'];
 const GROUPS = {
   home: 'البيت والصيانة', build: 'بناء وإيواء', tech: 'تقنية وطاقة', health: 'صحة وعلاج', transport: 'مواصلات ونقل',
@@ -486,10 +495,17 @@ function budget(j) {
 }
 const PAY = { cash: 'كاش عند الإنجاز', wallet: 'محفظة إلكترونية', any: 'أي طريقة' };
 /* a local number → international: 059 / 056 (Jawwal, Ooredoo) are +970, any other 05x is an Israeli network (+972) */
-function waLink(phone, text) {
+function intlNum(phone) {
   let d = String(phone || '').replace(/\D/g, '');
   if (/^0/.test(d)) d = (/^05[^69]/.test(d) ? '972' : '970') + d.slice(1);
-  return 'https://wa.me/' + d + (text ? '?text=' + encodeURIComponent(text) : '');
+  return d;
+}
+function waLink(phone, text) { return 'https://wa.me/' + intlNum(phone) + (text ? '?text=' + encodeURIComponent(text) : ''); }
+/* the phone's messages app with a ready text (a worker without WhatsApp): Android takes «?body=» (RFC 5724), Apple
+   (iPhone, iPad, which says «Macintosh», and Mac Messages) takes «&body=» since iOS 8 */
+function smsLink(phone, text) {
+  const apple = /iPhone|iPad|iPod|Macintosh/i.test(navigator.userAgent);
+  return 'sms:+' + intlNum(phone) + (text ? (apple ? '&' : '?') + 'body=' + encodeURIComponent(text) : '');
 }
 function hue(str) { let h = 0; for (const c of String(str)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
 function initial(name) { return esc(Array.from(String(name || '؟').replace(/^(م\.|د\.|أبو|ابو)\s*/, '').trim() || '؟')[0] || '؟'); }
@@ -534,7 +550,8 @@ function svcPickerMount(root) {
 }
 function tileHtml(slug, big) { const s = svc(slug); return `<span class="tile g-${esc(s.grp)}${big ? ' lg' : ''}" aria-hidden="true">${emo(slug)}</span>`; }
 function saveMe(me) { S.me = me; LS.set('me', me); if (me) S.unread = me.unread || 0; updateBadges(); if (me && me.worker && me.worker.reviewedAt) setTimeout(reviewCheck, 800); } /* after the page change that follows a login */
-function setSession(token, me) { S.token = token; LS.set('t', token); saveMe(me); }
+/* pushSync: a phone that had notifications on for this person gets them back with the new session (10_push.js) */
+function setSession(token, me) { S.token = token; LS.set('t', token); saveMe(me); pushSync(true); }
 function clearSession() { S.token = null; S.me = null; S.unread = 0; LS.del('t'); LS.del('me'); updateBadges(); }
 const isWorker = () => S.me && S.me.worker && S.me.worker.status === 'approved';
 
@@ -568,6 +585,7 @@ const ERR = {
   bad_service: 'اختر خدمة صحيحة',
   need_photo: 'أضف صورة لملفك أولا',
   need_service: 'اختر خدمة واحدة على الأقل',
+  need_approved_service: 'لازم تضل عندك خدمة وحدة معتمدة على الأقل',
   need_bio: 'اكتب نبذة عن خبرتك (20 حرفا على الأقل)',
   need_exp: 'حدّد سنوات الخبرة',
   need_hours: 'حدّد أوقات عملك',
@@ -591,7 +609,8 @@ const ERR = {
   bad_text: 'النص طويل أو غير صالح',
   bad_exp: 'سنوات الخبرة غير صحيحة',
   bad_status: 'لا يمكن إخفاء طلب عليه عامل أو منتهي',
-  bad_decision: 'صار خطأ بالقرار — حدّث الصفحة وجرّب مرة ثانية'
+  bad_decision: 'صار خطأ بالقرار — حدّث الصفحة وجرّب مرة ثانية',
+  bad_sub: 'ما بنقدر نفعّل الإشعارات على هالمتصفح. جرّب من متصفح ثاني مثل كروم'
 };
 function errMsg(e) { return (e && e.msg) || ERR[e && e.code] || 'حدث خطأ غير متوقع، حاول مرة أخرى'; }
 function mkErr(code, extra) { const e = new Error(code); e.code = code; e.msg = ERR[code]; return Object.assign(e, extra || {}); }
@@ -661,6 +680,8 @@ const ICONS = {
   list: '<rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6M9 12h6M9 16h4"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>',
   bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+  bellr: '<path d="M7 16v-4.5a5 5 0 0 1 10 0V16l1.8 2H5.2z"/><path d="M10.5 21h3"/><path d="M3.2 9.5a9 9 0 0 1 2.6-5M20.8 9.5a9 9 0 0 0-2.6-5"/>',
+  ch: '<path d="M3 10.2v3.6l16 5V5.2z"/><path d="M7.6 15.2v1.6a2.7 2.7 0 0 0 5.4.6"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
   back: '<path d="M5 12h14M13 6l6 6-6 6"/>', chev: '<path d="M15 6l-6 6 6 6"/>',
   close: '<path d="M18 6L6 18M6 6l12 12"/>', check: '<path d="M20 6L9 17l-5-5"/>',
@@ -777,12 +798,14 @@ async function copyText(s) {
     document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); ta.remove(); return ok;
   } catch (e) { return false; }
 }
-/* a ready-made WhatsApp message in a sheet: preview, «send on WhatsApp» to the given phone, and «copy» as a fallback */
+/* a ready-made WhatsApp message in a sheet: preview, «send on WhatsApp» to the given phone, and «copy» as a fallback.
+   sms: a shorter text for a phone without WhatsApp → an «SMS» button that opens the messages app with it */
 let MSG = '';
-function msgSheet(title, sub, phone, text, extra) {
+function msgSheet(title, sub, phone, text, extra, sms) {
   MSG = text;
+  const copy = `<button class="btn soft" data-a="copymsg">نسخ الرسالة</button>`;
   openSheet(`<h3>${title}</h3>${extra || ''}<p class="muted sm">${sub}</p><div class="msgbox" id="msg-text">${esc(text)}</div>
-    <div class="gap"><a class="btn wa" id="msg-wa" target="_blank" rel="noopener" href="${esc(waLink(phone, text))}">${ic('msg', 's')} ابعتها على واتساب</a><button class="btn soft" data-a="copymsg">نسخ الرسالة</button><button class="btn ghost" data-a="sheetx">تم</button></div>`);
+    <div class="gap"><a class="btn wa" id="msg-wa" target="_blank" rel="noopener" href="${esc(waLink(phone, text))}">${ic('msg', 's')} ابعتها على واتساب</a>${sms ? `<div class="btns nw"><a class="btn soft" id="msg-sms" href="${esc(smsLink(phone, sms))}">ابعتها SMS</a>${copy}</div>` : copy}<button class="btn ghost" data-a="sheetx">تم</button></div>`);
 }
 ACT.copymsg = async () => { if (await copyText(MSG)) toast('تم نسخ الرسالة', 'ok'); else toast('ما زبط النسخ — انسخ الرسالة بإيدك', 'bad'); };
 function lightbox(src) {
@@ -873,7 +896,9 @@ ACT.reload = () => render();
 /* ====== social links ====== */
 function socialHtml(title) {
   const a = (href, icon, label, cls) => `<a class="soc ${cls}" href="${href}" target="_blank" rel="noopener">${ic(icon)}<span>${label}</span></a>`;
-  return `<div class="card gap"><b>${title || 'تابعنا وتواصل معنا'}</b><div class="socs">${a(SOCIAL.ig, 'ig', 'إنستغرام', 'ig')}${a(SOCIAL.fb, 'fb', 'فيسبوك', 'fb')}${a(SOCIAL.tt, 'tt', 'تيك توك', 'tt')}${a(SOCIAL.wa, 'msg', 'واتساب', 'wa')}</div><div class="xs muted">جديد الخدمات، نصائح، وعروض العمّال أولا بأول.</div></div>`;
+  /* the small line says only what is true (docs/facts.md): what the pages and the channel post, and that following
+     the channel doesn't show anyone your number */
+  return `<div class="card gap"><b>${title || 'تابعنا وتواصل معنا'}</b><div class="socs">${a(SOCIAL.ig, 'ig', 'إنستغرام', 'ig')}${a(SOCIAL.fb, 'fb', 'فيسبوك', 'fb')}${a(SOCIAL.tt, 'tt', 'تيك توك', 'tt')}${a(SOCIAL.wa, 'msg', 'واتساب', 'wa')}${a(SOCIAL.ch, 'ch', 'قناة واتساب', 'wa ch')}</div><div class="xs muted">جديد الخدمات، ونصائح، وكيف تستعمل شغلة. ومتابعة القناة ما بتكشف رقمك لحدا.</div></div>`;
 }
 
 /* ====== router ====== */
@@ -990,6 +1015,7 @@ async function boot() {
     const before = JSON.stringify(S.services) + JSON.stringify(S.stats); applyBoot(b);
     if (before !== JSON.stringify(S.services) + JSON.stringify(S.stats) && /^(#\/?)?(services)?$/.test(location.hash)) render();
   }).catch(() => {});
+  bp.then(srcSend); /* a signup source that didn't reach the server last time (05_account.js), once the session is checked */
   if (S.token) await Promise.race([bp, new Promise(r => setTimeout(r, 2500))]);
   await render();
   done();
@@ -1168,8 +1194,9 @@ route(/^\/login$/, async ctx => {
               confetti();
               /* «كيف عرفت عن شغلة؟» + the link that brought him: silent, and a failure never gets in the way */
               const how = ($('#a-how', v) || {}).value || null, src = srcNow();
-              if (how || src) rpc('set_source', { p_how: how, p_src: src }).catch(() => {});
+              if (how || src) LS.set('srcq', { u: r.me.id, at: Date.now(), how, src });
             }
+            srcSend(); /* after signup, or a login of the same person whose first try didn't reach the server */
             replace(ctx.q.next || '/');
             if (su && (!ctx.q.next || ctx.q.next === '/')) pwaAsk(); /* signed up on the way to something (join, post, a job…): ask after that instead */
             if (!su && r.me && r.me.mustChange) mustChangeAsk();
@@ -1180,6 +1207,21 @@ route(/^\/login$/, async ctx => {
   };
 });
 ACT.authtab = t => { AUTH_TAB = t.dataset.v; const q = new URLSearchParams(location.hash.split('?')[1] || ''); q.set('tab', AUTH_TAB); replace('/login?' + q.toString()); };
+/* set_source is kept (srcq: whose, when he signed up, what) until the server says ok, and tried again at the next open
+   while that same person is signed in: never for another account on this phone. The server takes the link only in the
+   account's first 24 hours and writes once, so a repeat is harmless; after 24 hours it is dropped */
+const SRCQ_TTL = 864e5;
+async function srcSend() {
+  const q = LS.get('srcq', null), me = S.me;
+  if (!q) return;
+  if (!(Date.now() - q.at < SRCQ_TTL)) { LS.del('srcq'); return; }
+  if (!me || !S.token || q.u !== me.id) return;
+  try {
+    const r = await rpc('set_source', { p_how: q.how, p_src: q.src });
+    const now = LS.get('srcq', null);
+    if (r && r.ok && now && now.u === q.u && now.at === q.at) LS.del('srcq');
+  } catch (e) {}
+}
 const HOW = [['facebook', 'فيسبوك'], ['instagram', 'إنستغرام'], ['tiktok', 'تيك توك'], ['whatsapp', 'واتساب'], ['friend', 'صاحب أو معرفة'], ['ad', 'إعلان'], ['other', 'غير هيك']];
 /* forgot the password: WhatsApp to the project with a ready message (and the number he typed). The admin gives a
    temporary password only when the message comes from the registered number */
@@ -1199,6 +1241,7 @@ function mustChangeAsk(delay) {
 }
 ACT.showpw = t => { const i = t.parentNode.querySelector('input'); const show = i.type === 'password'; i.type = show ? 'text' : 'password'; t.innerHTML = ic(show ? 'eyeoff' : 'eye'); };
 async function logout() {
+  await pushLogout(); /* notifications: the server forgets this phone while the token still works, then the browser */
   try { await rpc('logout'); } catch (e) {}
   clearSession(); toast('تم تسجيل الخروج'); go('/');
 }
@@ -1231,6 +1274,7 @@ route(/^\/account$/, async () => {
       ${workerCard2()}
       <div class="menu">
         <a href="#/notifs">${ic('bell')}<span>الإشعارات</span>${S.unread > 0 ? `<span class="badge bad">${S.unread}</span>` : ''}<span class="go">${ic('chev', 's')}</span></a>
+        ${pushRow()}
         <a href="#/orders">${ic('list')}<span>طلباتي وعروضي</span><span class="go">${ic('chev', 's')}</span></a>
         ${pwaStandalone() ? '' : `<button data-a="pwainstall">${ic('dl')}<span>ثبّت التطبيق</span><span class="go">${ic('chev', 's')}</span></button>`}
         <button data-a="darkmode">${ic('moon')}<span class="sp">وضع التوفير (داكن)</span><span class="badge ${document.documentElement.classList.contains('dark') ? 'ok' : 'gray'}">${document.documentElement.classList.contains('dark') ? 'مفعّل' : 'متوقف'}</span></button>
@@ -1600,7 +1644,7 @@ ACT.ppublish = t => busy(t, async () => {
   try {
     const r = await rpc('job_create', { p_service: PD.svc, p_title: PD.title, p_descr: PD.descr || null, p_area: PD.area, p_bmin: fx ? PD.bmin : null, p_bmax: fx ? PD.bmax : null, p_when: PD.when, p_pay: PD.pay, p_urgent: PD.urgent, p_invited: PD.invite ? PD.invite.id : null });
     buzz([30, 40, 30]); const saved = { title: PD.title, area: PD.area, fx, bmin: PD.bmin, bmax: PD.bmax };
-    PD = PD0(); PD.done = r.id; PD.last = saved; postPaint(); pwaAsk();
+    PD = PD0(); PD.done = r.id; PD.last = saved; postPaint(); pwaAsk('job');
   } catch (e) { fail(e); }
 });
 ACT.sharenew = () => {
@@ -1916,7 +1960,7 @@ ACT.joinsend = t => busy(t, async () => {
       p_avatar: JD.avatarNew ? JD.avatar : null, p_thumb: JD.avatarNew ? JD.thumb : null, p_photos: JD.photosNew ? JD.photos : null, p_submit: true, p_other: JD.svcs.includes('other') ? JD.other.trim() : null
     });
     await refreshMe(); buzz([30, 40, 30]);
-    if (r.status === 'pending') { JD.sent = true; confetti(); joinPaint(); pwaAsk(); }
+    if (r.status === 'pending') { JD.sent = true; confetti(); joinPaint(); pwaAsk('join'); }
     else { toast((r.pendingServices && r.pendingServices.length) || r.pendingOther ? 'انحفظت التعديلات. الخدمة الجديدة بانتظار موافقة الإدارة' : 'تم حفظ التعديلات', 'ok'); go('/account'); }
   } catch (e) { fail(e); }
 });
@@ -1959,6 +2003,7 @@ function celebrate(seen) {
     <b class="nx">خطواتك الجاية</b>
     <div class="steps">
       <button class="st${w.available ? ' on' : ''}" data-a="celavail" role="switch" aria-checked="${!!w.available}"><span class="sp">متاح لاستقبال الطلبات<small>لما تكون متاح، اسمك بيظهر بقائمة العمّال</small></span><span class="sw"></span></button>
+      ${pushMode() === 'ready' && !pushIsOn() ? `<button class="st" data-a="celpush">${ic('bellr')}<span class="sp">فعّل الإشعارات<small>بيوصلك إشعار لما ينزل طلب بخدمتك وإنت متاح</small></span></button>` : ''}
       <button class="st" data-a="celgo" data-v="/join?step=photos">${ic('image')}<span class="sp">ضيف صور أكثر من شغلك<small>الصور الحقيقية بترفع ثقة الزبائن</small></span></button>
       <button class="st" data-a="celshare">${ic('share')}<span class="sp">شارك ملفك على واتساب<small>خلّي معارفك يشوفوا ملفك ويطلبوك</small></span></button>
       ${pwaStandalone() ? '' : `<button class="st" data-a="celinstall">${ic('dl')}<span class="sp">ثبّت شغلة على جوالك<small>افتحها بكبسة وحدة من شاشتك</small></span></button>`}
@@ -1974,6 +2019,11 @@ function rejectedScreen(note, seen) {
     <div class="btns"><button class="btn" data-a="celgo" data-v="/join">عدّل ملفك</button><button class="btn ghost" data-a="celx">بعدين</button></div>`, 'soft', seen);
 }
 ACT.celx = () => celClose(true);
+/* «فعّل الإشعارات» on the approval screen: part of it, not another window on top (10_push.js) */
+ACT.celpush = t => busy(t, async () => {
+  if (!await pushEnable() || !t.isConnected) return;
+  t.removeAttribute('data-a'); t.innerHTML = `${ic('check')}<span class="sp">الإشعارات مفعّلة<small>بيوصلك إشعار لما ينزل طلب بخدمتك وإنت متاح</small></span>`;
+});
 ACT.celgo = t => { const p = t.dataset.v; celClose(true); go(p); };
 ACT.celinstall = () => { celClose(true); pwaSheet(false); };
 ACT.celshare = () => {
@@ -2176,14 +2226,20 @@ ACT.adrep = async t => {
   if (act !== 'dismiss' && !await confirmSheet({ title: act === 'ban' ? 'حظر صاحب المحتوى؟' : 'إخفاء المحتوى؟', text: act === 'ban' ? 'سيتم إنهاء جلساته وإخفاء طلباته المفتوحة وإيقاف حسابه كعامل.' : 'سيتم إخفاء الطلب أو إيقاف العامل مؤقتا.', ok: 'تأكيد', danger: true })) return;
   try { await rpc('admin_report_handle', { p_id: +t.dataset.id, p_action: act }); toast('تم', 'ok'); render(); } catch (e) { fail(e); }
 };
-/* after a decision: the ready WhatsApp message to the worker (waLink: 059 / 056 → wa.me/970…, other 05x → 972…), or copy it */
+/* «أبو يوسف» / «عبد الله» are one name, the rest is the first word */
+const firstName = n => { const w = String(n || '').trim().split(/\s+/); return /^(أبو|ابو|أم|ام|عبد)$/.test(w[0]) && w[1] ? w[0] + ' ' + w[1] : w[0]; };
+/* after a decision: the ready WhatsApp message to the worker (waLink: 059 / 056 → wa.me/970…, other 05x → 972…), or copy it.
+   Accepted: /welcome and its SMS version from ops/whatsapp-kit.md word for word (approved 2026-11-02; run.js compares) */
 function adTell(ok, d, note) {
+  const fn = firstName(d.n), welcome = ok && !d.re;
   const text = ok && d.re
     ? `مرحبا ${d.n} 👋\nرجع حسابك كعامل بـ«شغلة» يشتغل ✓\nبتقدر ترجع تقدّم عروضك على الطلبات القريبة منك. تأكد من «حسابي» إنك «متاح لاستقبال الطلبات».\n🔗 ${APP_URL}`
     : ok
-    ? `مرحبا ${d.n} 👋\nمبروك! انقبل حسابك كعامل بـ«شغلة» 🎉\nهلأ بتقدر تقدّم عروضك على الطلبات القريبة منك. ادخل على «حسابي» وتأكد إنك «متاح لاستقبال الطلبات».\n🔗 ${APP_URL}\nبالتوفيق، وإذا احتجت أي إشي إحنا هون 🙏`
+    ? `أهلاً وسهلاً ${fn} 🌟\nمبروك! انقبل حسابك كعامل بـ«شغلة» 🎉 وصار ملفك ظاهر للزبائن.\n\nشو الجاي:\n• لما ينزل طلب بخدمتك، بيوصلك إشعار بالتطبيق 🔔\n• بتقدّم عرضك، وإنت اللي بتحدد سعرك\n• تأكد من «حسابي» إنك «متاح لاستقبال الطلبات»، عشان توصلك الطلبات\n• ثبّت التطبيق على جوالك: من «حسابي» اضغط «ثبّت التطبيق» 📲\n\nوسؤال صغير بيفيدنا كثير: من وين سمعت عن شغلة؟\n(فيسبوك، إنستغرام، تيك توك، واتساب، حدا حكالك، إعلان، ولا غير هيك؟)\n\n🔗 شغلة: ${APP_URL}\n\nتابعنا عشان يوصلك جديدنا:\n• فيسبوك: ${SOCIAL.fb}\n• إنستغرام: ${SOCIAL.ig}\n• تيك توك: ${SOCIAL.tt}\n• قناة واتساب: ${SOCIAL.ch}\n\n📌 احفظ رقمنا عندك، عشان توصلك تحديثات شغلة على الحالة.\nبالتوفيق، وأي إشي بتحتاجه إحنا هون 🤝`
     : `مرحبا ${d.n} 👋\nشكراً إنك سجّلت بـ«شغلة» 🙏\nراجعنا طلبك، وبدّه تعديل قبل ما ينزل ملفك للناس:\n*${note}*\nعدّل ملفك من «حسابي» ← «عدّل وأعد الإرسال»، وبنراجعه من جديد.\n🔗 ${APP_URL}`;
-  msgSheet(ok ? (d.re ? 'رجع حساب ' : 'تم قبول ') + esc(d.n) + ' ✓' : 'انرفض طلب ' + esc(d.n), 'بلّغه على واتساب برسالة جاهزة (وصله كمان إشعار بالتطبيق):', d.ph, text);
+  const sms = welcome ? `مبروك يا ${fn}! انقبل حسابك بشغلة. ادخل shughla-app.github.io ومن «حسابي» ثبّت التطبيق وتابعنا على مواقع التواصل. ومن وين سمعت عنا؟` : null;
+  msgSheet(ok ? (d.re ? 'رجع حساب ' : 'تم قبول ') + esc(d.n) + ' ✓' : 'انرفض طلب ' + esc(d.n),
+    welcome ? 'بلّغه برسالة جاهزة على واتساب، أو SMS إذا ما عنده واتساب (وصله كمان إشعار بالتطبيق):' : 'بلّغه على واتساب برسالة جاهزة (وصله كمان إشعار بالتطبيق):', d.ph, text, '', sms);
 }
 ACT.adapprove = async t => {
   const d = Object.assign({}, t.dataset);
@@ -2268,18 +2324,32 @@ function pwaCanAsk() {
   if (Date.now() - LS.get('pwa_no', 0) < PWA_GAP) return false;
   return !!PWA.bip || PWA.phone(); /* only where we can help: the browser offers to install, or a phone we have steps for */
 }
-/* after signup / after sending the join request: one gentle ask, once the screen has settled */
-function pwaAsk() {
-  setTimeout(() => { if (sheetEl || !pwaCanAsk()) return; $$('.toast').forEach(t => t.remove()); pwaSheet(true); }, 1600);
+/* after signup / after publishing a job (kind 'job') / after sending the join request (kind 'join'): one gentle ask,
+   once the screen has settled. At a job or a join request, «notifications on the phone» goes first (once per person,
+   10_push.js) and the install sheet waits for another time: never two sheets, never over the approval screen */
+function pwaAsk(kind) {
+  setTimeout(() => {
+    if (sheetEl || $('.cel')) return;
+    const push = !!kind && pushCanAsk(kind);
+    if (!push && !pwaCanAsk()) return;
+    $$('.toast').forEach(t => t.remove());
+    if (push) pushAsk(kind); else pwaSheet(true);
+  }, 1600);
 }
-function pwaSheet(auto) {
-  const how = PWA.bip ? 'bip' : LS.get('pwa_ok', false) ? 'done' : PWA.inApp() ? 'inapp' : PWA.ios() ? 'ios' : 'menu';
-  const k = (x, v) => `<span class="k${v ? ' v' : ''}">${x}</span>`;
-  const steps = {
+const pwaK = (x, v) => `<span class="k${v ? ' v' : ''}">${x}</span>`;
+function pwaSteps(how) { /* the install steps, also used by the notification help (10_push.js) */
+  const k = pwaK;
+  return {
     ios: [`اضغط زر المشاركة ${k(ic('ishare', 's'))} (إذا مش ظاهر، اضغط ${k('•••')} أول)`, 'اختار «إضافة إلى الشاشة الرئيسية»', 'اضغط «إضافة»، وبتصير شغلة على شاشتك'],
     menu: [`افتح قائمة المتصفح ${k(ic('dots', 's'), 1)} فوق`, 'اختار «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»', 'وافق، وبتصير شغلة على شاشتك'],
     inapp: [`إنت فاتح شغلة من جوّا فيسبوك أو إنستغرام: اضغط ${k(ic('dots', 's'), 1)} أو ${k('•••')} فوق`, 'اختار «فتح في المتصفح»', 'ومن المتصفح ثبّتها من قائمته']
   }[how];
+}
+function pwaSheet(auto) {
+  const how = PWA.bip ? 'bip' : LS.get('pwa_ok', false) ? 'done' : PWA.inApp() ? 'inapp' : PWA.ios() ? 'ios' : 'menu';
+  const steps = pwaSteps(how);
+  /* iPhone: notifications only work from the home-screen app, so say it where it helps */
+  if (how === 'ios' && pushMode() === 'ios') steps.push('افتح شغلة من أيقونتها، ومن «حسابي» فعّل الإشعارات 🔔');
   const done = how === 'done';
   const body = how === 'bip'
     ? `<div class="btns"><button class="btn sun" data-a="pwago">${ic('dl', 's')} ثبّت</button><button class="btn ghost" data-a="pwalater">بعدين</button></div>`
@@ -2311,10 +2381,202 @@ window.addEventListener('appinstalled', () => {
   if (PWA.shown) pwaClose();
   toast('تمت إضافة شغلة لشاشة جوالك ✓', 'ok');
 });
-/* service worker: only on the real site (https) or a local test server — never from file:// */
-if ('serviceWorker' in navigator && (location.protocol === 'https:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname))) {
+/* service worker: only on the real site (https) or a local test server — never from file://.
+   PWA.sw also tells the notifications (10_push.js) that they can work on this page */
+PWA.sw = 'serviceWorker' in navigator && (location.protocol === 'https:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname));
+if (PWA.sw) {
   window.addEventListener('load', () => { try { navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch(() => {}); } catch (e) {} });
 }
+
+/* ====== notifications on the phone (Web Push), round 4 ======
+   The server decides what is pushed (Rami: private.push_meta). This page asks, subscribes the browser and tells it:
+   push_subscribe(p_t, p_sub = PushSubscription.toJSON()) / push_unsubscribe(p_t, p_endpoint) → {ok:true}.
+   public/sw.js shows {title, body, url: "#/…", tag} and opens the link. Hidden while the VAPID key is empty/invalid */
+const PUSH = {
+  key: PUSH_VAPID_PUBLIC,
+  can: () => !!(PWA.sw && 'PushManager' in window && 'Notification' in window), /* PWA.sw: never on file:// */
+  iosOld: () => { const m = /OS (\d+)_(\d+)/.exec(navigator.userAgent); return !!m && /iPhone|iPad|iPod/.test(navigator.userAgent) && +m[1] * 100 + +m[2] < 1604; },
+  /* wait = until active (to subscribe), 10 s at most. Never registers: the emergency switch-off must win */
+  reg: wait => new Promise(res => {
+    const c = navigator.serviceWorker; if (!c) return res(null);
+    if (!wait) return c.getRegistration().then(r => res(r || null), () => res(null));
+    const t = setTimeout(() => res(null), 10000);
+    c.ready.then(r => { clearTimeout(t); res(r); }, () => { clearTimeout(t); res(null); });
+  })
+};
+const PUSH_RESEND = 7 * 864e5; /* told again once a week, in case the server lost it */
+const PUSH_FAIL = 'ما زبط تفعيل الإشعارات على هالجوال. جرّب مرة ثانية بعد شوي';
+/* the key as bytes: an uncompressed P-256 point (65 bytes, starts with 4), else null = off */
+function pushKey() {
+  try {
+    const s = String(PUSH.key || '').trim().replace(/-/g, '+').replace(/_/g, '/');
+    if (!s) return null;
+    const k = Uint8Array.from(atob(s + '='.repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0));
+    return k.length === 65 && k[0] === 4 ? k : null;
+  } catch (e) { return null; }
+}
+/* none (hidden) · ready · denied (blocked in the browser) · ios (iPhone: only from the home-screen app) ·
+   iosold (before iOS 16.4) · inapp (inside Facebook / Instagram) */
+function pushMode() {
+  if (!S.token || !S.me || !pushKey()) return 'none';
+  if (PWA.inApp()) return 'inapp';
+  const ios = PWA.ios();
+  if (ios && PUSH.iosOld()) return 'iosold';
+  if (ios && !pwaStandalone()) return 'ios';
+  if (!PUSH.can()) return ios ? 'iosold' : 'none';
+  return Notification.permission === 'denied' ? 'denied' : 'ready';
+}
+/* on = switched on by this person on this phone, and the server said ok ({u, e, at} in localStorage) */
+function pushIsOn() {
+  const f = LS.get('push', null);
+  return pushMode() === 'ready' && Notification.permission === 'granted' && !!(f && f.e && f.u === S.me.id);
+}
+
+/* ---- «حسابي» ---- */
+function pushRow() {
+  const m = pushMode(); if (m === 'none') return '';
+  const row = (act, label, hint, end) => `<${act ? `button data-a="${act}"` : 'div'} id="push-row">${ic('bellr')}<span class="sp">${label}${hint ? `<small>${hint}</small>` : ''}</span>${end || ''}</${act ? 'button' : 'div'}>`;
+  const go = `<span class="go">${ic('chev', 's')}</span>`;
+  if (m === 'ready') return pushIsOn() ? row('pushoff', 'إشعارات الجوال', '', '<span class="badge ok">مفعّلة</span>')
+    : row('pushon', 'فعّل الإشعارات', 'بيوصلك إشعار حتى لو شغلة مسكّرة', go);
+  if (m === 'denied') return row('pushhelp', 'إشعارات الجوال', 'انحظرت من إعدادات المتصفح. اضغط لتعرف كيف ترجّعها', '<span class="badge bad">محظورة</span>');
+  if (m === 'iosold') return row('', 'إشعارات الجوال', 'بتحتاج آيفون عليه iOS 16.4 أو أحدث');
+  return row('pushhelp', 'إشعارات الجوال', m === 'ios' ? 'على الآيفون بتشتغل بس لما تثبّت شغلة على الشاشة الرئيسية' : 'افتح شغلة بالمتصفح عشان تفعّلها', go);
+}
+function pushRowPaint() { const r = $('#push-row'); if (!r) return; const h = pushRow(); if (h) r.outerHTML = h; else r.remove(); }
+/* back from the phone's settings */
+document.addEventListener('visibilitychange', () => { if (!document.hidden && curHash === '/account') pushRowPaint(); });
+ACT.pushon = t => busy(t, pushEnable);
+ACT.pushoff = async () => {
+  if (!await confirmSheet({ title: 'تطفي إشعارات الجوال؟', text: 'ما رح يوصلك إشعار على هالجوال لحد ما ترجع تفعّلها. إشعارات التطبيق (الجرس) بتضل زي ما هي.', ok: 'إطفاء', danger: true })) return;
+  await pushOff(); toast('انطفت الإشعارات على هالجوال'); pushRowPaint();
+};
+ACT.pushhelp = () => pushHelp();
+/* blocked / iPhone / Facebook browser: what to do, instead of a button that can't work */
+function pushHelp() {
+  const m = pushMode(), k = pwaK;
+  let title, text, steps;
+  if (m === 'denied') {
+    title = 'الإشعارات محظورة 🔕'; text = 'انحظرت من إعدادات المتصفح، فما بنقدر نبعتلك إشعارات. لترجّعها:';
+    steps = PWA.ios() ? ['افتح «الإعدادات» بالآيفون، وبعدين «الإشعارات»', 'اختار «شغلة» وشغّل «السماح بالإشعارات»', 'ارجع لشغلة واضغط «فعّل الإشعارات»']
+      : pwaStandalone() ? ['اضغط مطوّل على أيقونة شغلة بشاشة الجوال، واختار «معلومات التطبيق»', 'افتح «الإشعارات» وشغّلها', 'ارجع لشغلة واضغط «فعّل الإشعارات»']
+      : [`اضغط على الإشارة اللي جنب رابط الموقع فوق ${k(ic('lock', 's'))}`, 'افتح «الأذونات» أو «إعدادات الموقع»، وخلّي «الإشعارات» على «السماح»', 'ارجع هون واضغط «فعّل الإشعارات»'];
+  } else if (m === 'ios') {
+    title = 'الإشعارات على الآيفون 🔔'; text = 'على الآيفون، إشعارات شغلة بتشتغل بس لما تكون مثبّتة على الشاشة الرئيسية (iOS 16.4 أو أحدث). ثبّتها هيك:';
+    steps = pwaSteps('ios').concat('افتح شغلة من أيقونتها، ومن «حسابي» فعّل الإشعارات');
+  } else if (m === 'inapp') {
+    title = 'افتح شغلة بالمتصفح 🔔'; text = 'إنت فاتح شغلة من جوّا فيسبوك أو إنستغرام، والإشعارات ما بتشتغل هون.';
+    steps = pwaSteps('inapp').slice(0, 2).concat('ادخل بحسابك، ومن «حسابي» فعّل الإشعارات');
+  } else return;
+  openSheet(`<h3>${title}</h3><p class="muted sm" style="margin-bottom:12px">${text}</p>
+    <ol class="pwa-steps" id="push-steps">${steps.map(s => `<li><span>${s}</span></li>`).join('')}</ol><button class="btn" data-a="sheetx">تمام</button>`);
+}
+
+/* ---- on / off ---- */
+/* the browser's question must come straight from the tap (iPhone is strict): first thing, before any wait */
+function pushPermission() {
+  const N = window.Notification;
+  if (N.permission === 'granted') return Promise.resolve('granted');
+  return new Promise(res => {
+    let p; try { p = N.requestPermission(r => res(r)); } catch (e) { return res(N.permission); }
+    if (p && p.then) p.then(res, () => res(N.permission));
+  });
+}
+/* the browser's subscription for our key: the one it has, or a new one (also after a key change) */
+async function pushSubscribe() {
+  const reg = await PUSH.reg(true), key = pushKey();
+  if (!reg || !reg.pushManager || !key) throw new Error('no_sw');
+  let sub = await reg.pushManager.getSubscription();
+  const k = sub && sub.options && sub.options.applicationServerKey, a = k ? new Uint8Array(k) : null;
+  if (a && !(a.length === key.length && a.every((v, i) => v === key[i]))) { await sub.unsubscribe().catch(() => {}); sub = null; }
+  return sub || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+}
+async function pushEnable() {
+  if (pushMode() !== 'ready') { pushHelp(); return false; }
+  const me = S.me, perm = await pushPermission();
+  if (S.me !== me) return false;
+  if (perm !== 'granted') {
+    toast(perm === 'denied' ? 'انحظرت الإشعارات. إذا غيّرت رأيك، بترجّعها من إعدادات المتصفح' : 'ما انفعّلت الإشعارات. بتقدر تفعّلها من «حسابي» وقت ما بدك');
+    pushRowPaint(); return false;
+  }
+  try {
+    const sub = await pushSubscribe();
+    await rpc('push_subscribe', { p_sub: sub.toJSON() });
+    if (S.me !== me) return false;
+    LS.set('push', { u: me.id, e: sub.endpoint, at: Date.now() });
+    toast('تمام، الإشعارات صارت مفعّلة على هالجوال', 'ok'); buzz(15);
+    pushRowPaint(); return true;
+  } catch (e) {
+    toast(e && typeof e.code === 'string' ? errMsg(e) : PUSH_FAIL, 'bad'); /* the browser's own errors say nothing useful */
+    pushRowPaint(); return false;
+  }
+}
+/* the browser forgets it: then nothing reaches this phone, even if the server still has it */
+function pushDrop() {
+  if (!PWA.sw) return Promise.resolve();
+  return PUSH.reg(false).then(r => r && r.pushManager ? r.pushManager.getSubscription() : null).then(s => s && s.unsubscribe()).catch(() => {});
+}
+/* «إطفاء»: the server first (while the token works), then the browser */
+async function pushOff() {
+  LS.del('push');
+  if (!PWA.sw) return;
+  const reg = await PUSH.reg(false), sub = reg && reg.pushManager ? await reg.pushManager.getSubscription().catch(() => null) : null;
+  if (!sub) return;
+  if (S.token) await rpc('push_unsubscribe', { p_endpoint: sub.endpoint }, { timeout: 6000 }).catch(() => {});
+  await sub.unsubscribe().catch(() => {});
+}
+/* logout: the server, then the browser. Remembered as wanted ({u, e: null}): back by itself when the same person logs
+   in again, never for anyone else. A session that ends without a logout: the server stops at once (each subscription
+   is tied to its session), the phone keeps it, and logging in again re-links it (pushSync) */
+async function pushLogout() {
+  if (!PWA.sw || !S.token) return;
+  const f = LS.get('push', null);
+  if (f && f.e) LS.set('push', { u: f.u, e: null, at: 0 });
+  const reg = await PUSH.reg(false), sub = reg && reg.pushManager ? await reg.pushManager.getSubscription().catch(() => null) : null;
+  if (!sub) return;
+  await rpc('push_unsubscribe', { p_endpoint: sub.endpoint }, { timeout: 6000 }).catch(() => {});
+  await sub.unsubscribe().catch(() => {});
+}
+/* phone and server in step: at every open (a changed subscription or key) and after logging in (login: told again,
+   so it belongs to the new session) */
+async function pushSync(login) {
+  const f = LS.get('push', null), me = S.me;
+  if (!f || !me || !S.token) return;
+  if (f.u !== me.id) { LS.del('push'); return pushDrop(); } /* someone else's */
+  const m = pushMode();
+  if (m !== 'ready' && m !== 'denied') return;
+  if (Notification.permission !== 'granted') { LS.del('push'); return; } /* blocked or reset in the settings */
+  if (!f.e && !login) return;
+  try {
+    const sub = await pushSubscribe();
+    if (S.me !== me) return;
+    if (!login && sub.endpoint === f.e && Date.now() - (f.at || 0) < PUSH_RESEND) return; /* in step: no call */
+    await rpc('push_subscribe', { p_sub: sub.toJSON() });
+    if (f.e && f.e !== sub.endpoint) rpc('push_unsubscribe', { p_endpoint: f.e }).catch(() => {});
+    if (S.me === me) { LS.set('push', { u: me.id, e: sub.endpoint, at: Date.now() }); pushRowPaint(); }
+  } catch (e) {}
+}
+window.addEventListener('load', () => setTimeout(() => pushSync(false), 2500));
+
+/* ---- asked once, at the right moment: after publishing a job ('job') / after the join request ('join').
+   Per person and kind, remembered when the sheet closes (however it closes), not when it opens ---- */
+function pushCanAsk(kind) { return !!S.me && pushMode() === 'ready' && !pushIsOn() && !LS.get('pask_' + kind + '_' + S.me.id, false); }
+function pushAsk(kind) {
+  const k = 'pask_' + kind + '_' + S.me.id, job = kind === 'job';
+  openSheet(`<h3 id="push-ask">${job ? 'بدك نبعتلك إشعار أول ما يوصلك عرض؟' : 'بدك إشعار لما ينزل طلب بخدمتك؟'}</h3>
+    <p class="muted sm" style="margin-bottom:14px">${job ? '' : 'وكمان لما نراجع طلب انضمامك. '}بيوصلك على الجوال حتى لو شغلة مسكّرة، لما يكون عندك نت. وبتقدر تطفيه من «حسابي» وقت ما بدك.</p>
+    <div class="btns"><button class="btn sun" data-a="pushyes">اه، فعّلها</button><button class="btn ghost" data-a="sheetx">مش هلأ</button></div>`);
+  sheetClose = () => LS.set(k, Date.now());
+}
+ACT.pushyes = () => { pushEnable(); closeSheet(); }; /* pushEnable first: the browser's question needs this tap */
+/* a tapped notification while شغلة is open: the service worker asks this page to open the link (a hash change, no
+   reload) and waits for this answer; a page too old to answer is moved by the service worker itself */
+if (PWA.sw) navigator.serviceWorker.addEventListener('message', e => {
+  const d = e.data || {};
+  if (d.shughla !== 'open' || typeof d.url !== 'string' || !/^#\/[^\s<>"'\\]{0,200}$/.test(d.url)) return;
+  if (e.ports && e.ports[0]) e.ports[0].postMessage(1);
+  if (location.hash === d.url) render(); else location.hash = d.url;
+});
 
 </script>
 </body>
